@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: Recommendation-Service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/recommendations/**
+
+        - id: Client-Service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/clients/**
+
+        - id: Offer-Service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/offers/**
+
+        - id: UsageHistory-Service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/history/**
+
+        - id: Analytics-Service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/analytics/**
+
+        - id: Segmentation-Service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/segmentation/**

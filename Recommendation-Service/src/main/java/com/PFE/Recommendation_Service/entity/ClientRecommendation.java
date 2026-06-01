@@ -4,28 +4,31 @@ import java.util.List;
 
 public class ClientRecommendation {
 
-    private Integer clientReference;
-
+    private Client client;
     private List<RecommendedOffer> recommendedOffers;
 
     public ClientRecommendation() {
     }
 
-    public ClientRecommendation(Integer clientReference, List<RecommendedOffer> recommendedOffers) {
-        this.clientReference = clientReference;
+    public ClientRecommendation(Client client, List<RecommendedOffer> recommendedOffers) {
+        this.client = client;
         this.recommendedOffers = recommendedOffers;
     }
 
-    public Integer getClientReference() {
-        return clientReference;
-    }
+    // ================= GETTERS =================
 
-    public void setClientReference(Integer clientReference) {
-        this.clientReference = clientReference;
+    public Client getClient() {
+        return client;
     }
 
     public List<RecommendedOffer> getRecommendedOffers() {
         return recommendedOffers;
+    }
+
+    // ================= SETTERS =================
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public void setRecommendedOffers(List<RecommendedOffer> recommendedOffers) {

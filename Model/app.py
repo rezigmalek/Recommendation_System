@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 import pandas as pd
-import numpy as np
 import pickle
 import os
 import logging
@@ -14,7 +13,7 @@ MODEL_PATH   = os.getenv("MODEL_PATH",   "models/xgb_offer_model.pkl")
 COLUMNS_PATH = os.getenv("COLUMNS_PATH", "models/model_columns.pkl")
 
 # =========================
-# Load model
+# LOAD MODEL
 # =========================
 
 with open(MODEL_PATH, "rb") as f:
@@ -23,8 +22,34 @@ with open(MODEL_PATH, "rb") as f:
 with open(COLUMNS_PATH, "rb") as f:
     MODEL_COLUMNS = pickle.load(f)
 
-logger.info(f"Modele charge — {len(MODEL_COLUMNS)} features attendues")
+logger.info(f"Model loaded - {len(MODEL_COLUMNS)} features")
 
+# =========================
+# CHAMPS INFORMATIFS (exclus du modèle, retournés dans la réponse)
+# =========================
+
+# Ces colonnes sont des métadonnées — elles ne doivent PAS entrer dans les features
+# du modèle, mais doivent être restituées dans la réponse finale.
+
+CLIENT_INFO_FIELDS = [
+    "Subs_Id",
+    "Client_name",
+    "Client_past_offer_reference",
+    "Client_past_offer_name",
+    "Client_past_offer_price",
+]
+
+OFFER_INFO_FIELDS = [
+    "Offer_ID",
+    "Offer_name",
+    "price",
+    "data general",
+    "onnet_voice_unlimited",
+    "offnet_voice_unlimited",
+    "credit_international",
+    "credit_offnet",
+    "credit_onnet",
+]
 
 # =========================
 # FEATURE ENGINEERING
@@ -33,7 +58,11 @@ logger.info(f"Modele charge — {len(MODEL_COLUMNS)} features attendues")
 def build_features(client, offers):
 
     client_df = pd.DataFrame([client])
-    offers_df = pd.DataFrame(offers)   # 🔥 OFFERS NOW JSON
+    offers_df = pd.DataFrame(offers)
+
+    # =========================
+    # CLIENT CLEANING
+    # =========================
 
     inactive = client_df["Flag_Activity"].isnull().all()
 
@@ -47,14 +76,10 @@ def build_features(client, offers):
         1.0 if inactive else 0.0
     )
 
-    # =========================
-    # fill missing numeric client fields
-    # =========================
-
     client_df = client_df.fillna(0)
 
     # =========================
-    # CARTESIAN PRODUCT (CLIENT x OFFERS)
+    # CARTESIAN PRODUCT
     # =========================
 
     client_df["_key"] = 1
@@ -66,51 +91,48 @@ def build_features(client, offers):
     # FEATURE ENGINEERING
     # =========================
 
-    long_df["prix_vs_revenu_ratio"] = (
-        long_df["price"] / (long_df.get("AVG_REAL_REV", 1) + 1)
-    )
+    long_df["prix_vs_revenu_ratio"] = long_df["price"] / (long_df.get("AVG_REAL_REV", 1) + 1)
 
     long_df["prix_rank"] = long_df["price"].rank(pct=True)
 
     long_df["match_inter"] = (
-        long_df.get("AVG_TRAF_OUT_VOICE_INTER", 0) *
-        long_df.get("credit_international", 0)
+        long_df.get("AVG_TRAF_OUT_VOICE_INTER", 0)
+        * long_df.get("credit_international", 0)
     )
 
     long_df["match_onnet"] = (
-        long_df.get("TRAF_ONNET_RATIO", 0) *
-        long_df.get("onnet_voice_unlimited", 0)
+        long_df.get("TRAF_ONNET_RATIO", 0)
+        * long_df.get("onnet_voice_unlimited", 0)
     )
 
     long_df["match_data"] = (
-        long_df.get("AVG_VOLUME_DATA_MO", 0) *
-        long_df.get("data general", 0)
+        long_df.get("AVG_VOLUME_DATA_MO", 0)
+        * long_df.get("data general", 0)
     )
 
     long_df["data_per_revenue"] = (
-        long_df.get("AVG_VOLUME_DATA_MO", 0) /
-        (long_df.get("AVG_REAL_REV", 1) + 1)
+        long_df.get("AVG_VOLUME_DATA_MO", 0)
+        / (long_df.get("AVG_REAL_REV", 1) + 1)
     )
 
     long_df["voice_fit_score"] = (
-        long_df.get("AVG_TRAF_TOTAL", 0) /
-        (
-            long_df.get("onnet_voice_unlimited", 0) +
-            long_df.get("offnet_voice_unlimited", 0) + 1
+        long_df.get("AVG_TRAF_TOTAL", 0)
+        / (
+            long_df.get("onnet_voice_unlimited", 0)
+            + long_df.get("offnet_voice_unlimited", 0)
+            + 1
         )
     )
 
-    # =========================
-    # ALIGN MODEL INPUT
-    # =========================
+    long_df = long_df.fillna(0)
 
-    long_df = long_df.reindex(columns=MODEL_COLUMNS, fill_value=0)
+    X = long_df.reindex(columns=MODEL_COLUMNS, fill_value=0)
 
-    return long_df
+    return X
 
 
 # =========================
-# PREDICT
+# PREDICTION
 # =========================
 
 def predict_all_offers(client, offers):
@@ -119,11 +141,10 @@ def predict_all_offers(client, offers):
 
     scores = MODEL.predict_proba(X)[:, 1]
 
-    offers_df = pd.DataFrame(offers)
-
+    # Reconstruire les offres avec TOUTES leurs informations
+    offers_df = pd.DataFrame(offers).copy().fillna(0)
     offers_df["score"] = scores
-
-    offers_df = offers_df.sort_values("score", ascending=False)
+    offers_df = offers_df.sort_values(by="score", ascending=False)
 
     return offers_df.to_dict(orient="records")
 
@@ -138,24 +159,49 @@ def recommend():
     try:
         body = request.get_json(force=True)
 
-        subs_id = body.get("subs_id")
         client = body.get("client")
-        offers = body.get("offers")   # 🔥 OFFERS AS JSON
+        offers = body.get("offers")
 
-        if not client or not offers:
-            return jsonify({"error": "client and offers are required"}), 400
+        if not client:
+            return jsonify({"error": "client is required"}), 400
+
+        if not offers:
+            return jsonify({"error": "offers is required"}), 400
 
         recommendations = predict_all_offers(client, offers)
 
+        # Extraire les infos client à retourner dans la réponse
+        client_info = {field: client.get(field) for field in CLIENT_INFO_FIELDS}
+
+        # Chaque recommandation contient déjà tous les champs de l'offre
+        # (Offer_ID, Offer_name, price, data general, ...) + le score
+        enriched_recommendations = []
+        for rec in recommendations:
+            enriched_rec = {field: rec.get(field) for field in OFFER_INFO_FIELDS}
+            enriched_rec["score"] = rec.get("score")
+            enriched_recommendations.append(enriched_rec)
+
         return jsonify({
-            "subs_id": subs_id,
-            "total_offers_ranked": len(recommendations),
-            "recommendations": recommendations
+            "client":          client_info,
+            "recommendations": enriched_recommendations,
+            "total_offers_ranked": len(enriched_recommendations),
         })
 
     except Exception as e:
-        logger.exception("Erreur /api/recommend")
+        logger.exception("Error in recommendation API")
         return jsonify({"error": str(e)}), 500
+
+
+# =========================
+# HEALTH CHECK
+# =========================
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "UP",
+        "features": len(MODEL_COLUMNS)
+    })
 
 
 # =========================

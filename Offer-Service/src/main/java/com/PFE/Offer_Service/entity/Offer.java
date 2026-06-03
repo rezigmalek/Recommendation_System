@@ -10,20 +10,23 @@ public class Offer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "offer_reference")
+    @Column(name = "offer_reference", unique = true)
     private int offerReference;
+
+    @Column(name = "offer_name")
+    private String offerName;
 
     @Column(name = "price")
     private Double price;
 
     @Column(name = "data_general")
-    private Double data_general;
+    private Double dataGeneral;
 
     @Column(name = "onnet_voice_unlimited")
-    private int onnetVoiceUnlimited;
+    private Double onnetVoiceUnlimited;
 
     @Column(name = "offnet_voice_unlimited")
-    private int offnetVoiceUnlimited;
+    private Double offnetVoiceUnlimited;
 
     @Column(name = "credit_international")
     private Double creditInternational;
@@ -36,8 +39,6 @@ public class Offer {
 
     public Offer() {
     }
-
-    // ================= GETTERS & SETTERS =================
 
     public Long getId() {
         return id;
@@ -55,6 +56,14 @@ public class Offer {
         this.offerReference = offerReference;
     }
 
+    public String getOfferName() {
+        return offerName;
+    }
+
+    public void setOfferName(String offerName) {
+        this.offerName = offerName;
+    }
+
     public Double getPrice() {
         return price;
     }
@@ -63,27 +72,27 @@ public class Offer {
         this.price = price;
     }
 
-    public Double getData_general() {
-        return data_general;
+    public Double getDataGeneral() {
+        return dataGeneral;
     }
 
-    public void setData_general(Double data_general) {
-        this.data_general = data_general;
+    public void setDataGeneral(Double dataGeneral) {
+        this.dataGeneral = dataGeneral;
     }
 
-    public int getOnnetVoiceUnlimited() {
+    public Double getOnnetVoiceUnlimited() {
         return onnetVoiceUnlimited;
     }
 
-    public void setOnnetVoiceUnlimited(int onnetVoiceUnlimited) {
+    public void setOnnetVoiceUnlimited(Double onnetVoiceUnlimited) {
         this.onnetVoiceUnlimited = onnetVoiceUnlimited;
     }
 
-    public int getOffnetVoiceUnlimited() {
+    public Double getOffnetVoiceUnlimited() {
         return offnetVoiceUnlimited;
     }
 
-    public void setOffnetVoiceUnlimited(int offnetVoiceUnlimited) {
+    public void setOffnetVoiceUnlimited(Double offnetVoiceUnlimited) {
         this.offnetVoiceUnlimited = offnetVoiceUnlimited;
     }
 

@@ -74,17 +74,6 @@ public class RecommendationService {
         return recommendationRepository.findByRecommendationReference(reference).orElse(null);
     }
 
-    // ================= DELETE =================
-
-    public void deleteRecommendation(Number recommendationReference) {
-        Recommendation recommendation = recommendationRepository
-                .findByRecommendationReference(recommendationReference)
-                .orElse(null);
-        if (recommendation != null) {
-            recommendationRepository.delete(recommendation);
-        }
-    }
-
     // ================= HELPERS =================
 
     private Double getDouble(Cell cell) {

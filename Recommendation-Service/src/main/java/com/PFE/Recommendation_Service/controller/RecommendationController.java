@@ -65,17 +65,14 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendation);
     }
 
-    // ================= DELETE =================
+    // ================= GET NEXT RECOMMENDATION REFERENCE =================
 
-    @DeleteMapping("/{reference}")
-    public ResponseEntity<String> delete(
-            @PathVariable Number reference) {
-
-        recommendationService.deleteRecommendation(reference);
-
-        return ResponseEntity.ok(
-                "Recommendation deleted successfully");
+    @GetMapping("/next-reference")
+    public ResponseEntity<Number> getNextReference() {
+        return ResponseEntity.ok(recommendationService.getNextSequence());
     }
+
+    // ================= UPLOAD FILES & RECOMMEND =================
 
     @PostMapping("/upload-data")
     public ResponseEntity<ApiResponse<Recommendation>> uploadFiles(

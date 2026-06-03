@@ -43,13 +43,13 @@ public class OfferService {
 
                 offer.setPrice(row.getCell(1).getNumericCellValue());
 
-                offer.setData_general(row.getCell(2).getNumericCellValue());
+                offer.setDataGeneral(row.getCell(2).getNumericCellValue());
 
                 offer.setOnnetVoiceUnlimited(
-                        (int) row.getCell(3).getNumericCellValue());
+                        (Double) row.getCell(3).getNumericCellValue());
 
                 offer.setOffnetVoiceUnlimited(
-                        (int) row.getCell(4).getNumericCellValue());
+                        (Double) row.getCell(4).getNumericCellValue());
 
                 offer.setCreditInternational(row.getCell(5).getNumericCellValue());
 
@@ -65,7 +65,7 @@ public class OfferService {
                     Offer o = existing.get();
 
                     o.setPrice(offer.getPrice());
-                    o.setData_general(offer.getData_general());
+                    o.setDataGeneral(offer.getDataGeneral());
                     o.setOnnetVoiceUnlimited(offer.getOnnetVoiceUnlimited());
                     o.setOffnetVoiceUnlimited(offer.getOffnetVoiceUnlimited());
                     o.setCreditInternational(offer.getCreditInternational());

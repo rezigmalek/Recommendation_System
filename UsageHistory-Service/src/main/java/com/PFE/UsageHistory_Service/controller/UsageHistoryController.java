@@ -5,6 +5,7 @@ import com.PFE.UsageHistory_Service.response.ApiResponse;
 import com.PFE.UsageHistory_Service.service.UsageHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -12,78 +13,77 @@ import java.util.List;
 @RequestMapping("/api/history")
 public class UsageHistoryController {
 
-    private final UsageHistoryService usageHistoryService;
+        private final UsageHistoryService usageHistoryService;
 
-    public UsageHistoryController(UsageHistoryService usageHistoryService) {
-        this.usageHistoryService = usageHistoryService;
-    }
-
-    @PostMapping
-    public ResponseEntity<ApiResponse<UsageHistory>> createHistory(
-            @RequestBody UsageHistory usageHistory) {
-
-        UsageHistory created = usageHistoryService.createHistory(usageHistory);
-
-        ApiResponse<UsageHistory> response = new ApiResponse<>(
-                "History created successfully",
-                true,
-                created
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<UsageHistory>>> getAllHistory() {
-
-        List<UsageHistory> list = usageHistoryService.getAllHistory();
-
-        ApiResponse<List<UsageHistory>> response = new ApiResponse<>(
-                "History retrieved successfully",
-                true,
-                list
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UsageHistory>> getHistoryById(
-            @PathVariable Long id) {
-
-        UsageHistory history = usageHistoryService.getHistoryById(id);
-
-        if (history == null) {
-            ApiResponse<UsageHistory> response = new ApiResponse<>(
-                    "History not found",
-                    false,
-                    null
-            );
-            return ResponseEntity.status(404).body(response);
+        public UsageHistoryController(UsageHistoryService usageHistoryService) {
+                this.usageHistoryService = usageHistoryService;
         }
 
-        ApiResponse<UsageHistory> response = new ApiResponse<>(
-                "History retrieved successfully",
-                true,
-                history
-        );
+        @PostMapping
+        public ResponseEntity<ApiResponse<UsageHistory>> createUsageHistory(
+                        @RequestParam("clientsFile") MultipartFile clientsFile,
+                        @RequestParam("offersFile") MultipartFile offersFile,
+                        @RequestParam("recommendationReference") Integer recommendationReference) {
 
-        return ResponseEntity.ok(response);
-    }
+                UsageHistory result = usageHistoryService.createUsageHistory(
+                                clientsFile,
+                                offersFile,
+                                recommendationReference);
 
-    @GetMapping("/recommendation/{reference}")
-    public ResponseEntity<ApiResponse<List<UsageHistory>>> getByRecommendationReference(
-            @PathVariable Integer reference) {
+                ApiResponse<UsageHistory> response = new ApiResponse<>(
+                                "Usage history created successfully",
+                                true,
+                                result);
 
-        List<UsageHistory> list =
-                usageHistoryService.getByRecommendationReference(reference);
+                return ResponseEntity.ok(response);
+        }
 
-        ApiResponse<List<UsageHistory>> response = new ApiResponse<>(
-                "History filtered by recommendation reference",
-                true,
-                list
-        );
+        @GetMapping
+        public ResponseEntity<ApiResponse<List<UsageHistory>>> getAllHistory() {
 
-        return ResponseEntity.ok(response);
-    }
+                List<UsageHistory> list = usageHistoryService.getAllHistory();
+
+                ApiResponse<List<UsageHistory>> response = new ApiResponse<>(
+                                "History retrieved successfully",
+                                true,
+                                list);
+
+                return ResponseEntity.ok(response);
+        }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<ApiResponse<UsageHistory>> getHistoryById(
+                        @PathVariable Long id) {
+
+                UsageHistory history = usageHistoryService.getHistoryById(id);
+
+                if (history == null) {
+                        ApiResponse<UsageHistory> response = new ApiResponse<>(
+                                        "History not found",
+                                        false,
+                                        null);
+                        return ResponseEntity.status(404).body(response);
+                }
+
+                ApiResponse<UsageHistory> response = new ApiResponse<>(
+                                "History retrieved successfully",
+                                true,
+                                history);
+
+                return ResponseEntity.ok(response);
+        }
+
+        @GetMapping("/recommendation/{reference}")
+        public ResponseEntity<ApiResponse<List<UsageHistory>>> getByRecommendationReference(
+                        @PathVariable Integer reference) {
+
+                List<UsageHistory> list = usageHistoryService.getByRecommendationReference(reference);
+
+                ApiResponse<List<UsageHistory>> response = new ApiResponse<>(
+                                "History filtered by recommendation reference",
+                                true,
+                                list);
+
+                return ResponseEntity.ok(response);
+        }
 }

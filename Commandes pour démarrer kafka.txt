@@ -1,0 +1,5 @@
+$ docker compose up -d
+ ici dans ce chemin
+
+docker exec -it kafka kafka-consumer-groups --bootstrap-server localhost:9092 --list
+cette commande pour vérifier les consumers dans kafka

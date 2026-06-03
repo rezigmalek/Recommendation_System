@@ -22,9 +22,6 @@ public class Analytics {
     @Column(name = "top_offer_recommended_name")
     private String topOfferRecommendedName;
 
-    @Column(name = "average_arpu")
-    private Double averageArpu;
-
     @Column(name = "upsell_percentage")
     private Double upsellPercentage;
 
@@ -34,14 +31,20 @@ public class Analytics {
     @Column(name = "stable_percentage")
     private Double stablePercentage;
 
-    @Column(name = "average_conversion")
-    private Double averageConversion;
+    @Column(name = "estimated_conversion_rate")
+    private Double EstimatedConversionRate;
+
+    @Column(name = "average_recommendation_score")
+    private Double AverageRecommendationScore;
 
     @Column(name = "average_data")
     private Double averageData;
 
     @Column(name = "average_voice")
     private Double averageVoice;
+
+    @Column(name = "average_arpu")
+    private Double averageArpu;
 
     public Analytics() {
     }
@@ -120,12 +123,20 @@ public class Analytics {
         this.stablePercentage = stablePercentage;
     }
 
-    public Double getAverageConversion() {
-        return averageConversion;
+    public Double getEstimatedConversionRate() {
+        return EstimatedConversionRate;
     }
 
-    public void setAverageConversion(Double averageConversion) {
-        this.averageConversion = averageConversion;
+    public void setEstimatedConversionRate(Double EstimatedConversionRate) {
+        this.EstimatedConversionRate = EstimatedConversionRate;
+    }
+
+    public Double getAverageRecommendationScore() {
+        return AverageRecommendationScore;
+    }
+
+    public void setAverageRecommendationScore(Double AverageRecommendationScore) {
+        this.AverageRecommendationScore = AverageRecommendationScore;
     }
 
     public Double getAverageData() {

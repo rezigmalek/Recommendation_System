@@ -59,6 +59,11 @@ public class ClientKafkaConsumer {
 
             client.setClientReference(clientRef);
             client.setFull_name(dto.getClientName());
+            client.setContact(dto.getContact());
+            client.setValueSegment(dto.getValueSegment());
+            client.setClientPastOfferName(dto.getClientPastOfferName());
+            client.setClientPastOfferPrice(dto.getClientPastOfferPrice());
+            client.setClientPastOfferReference(dto.getClientPastOfferReference());
             client.setFlag_activity(dto.getFlagActivity());
 
             if (dto.getTenure() != null) {

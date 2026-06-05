@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchIcon } from '../common/Icons';
 import { useAppContext } from '../../context/AppContext';
 
+// Helper to generate avatar color from name
+const getAvatarColor = (name) => {
+  const colors = ['#D6121D', '#2A2633', '#E23B44', '#8E8896', '#1A181E', '#FF5E62', '#4B4453', '#C9141F', '#A855F7', '#3b82f6'];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
 export default function ClientsView() {
   const {
-    clients,
     selectedClientId,
     setSelectedClientId,
     lang,
@@ -14,85 +23,123 @@ export default function ClientsView() {
 
   const navigate = useNavigate();
 
+  // API data state
+  const [apiClients, setApiClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // Local filters & search query
   const [searchQuery, setSearchQuery] = useState('');
-  const [clientSegmentFilter, setClientSegmentFilter] = useState('All');
-  const [clientRiskFilter, setClientRiskFilter] = useState('All');
+  const [segmentFilter, setSegmentFilter] = useState('All');
+  const [activityFilter, setActivityFilter] = useState('All');
 
-  // Translation helpers
-  const translateSegment = (seg) => {
-    if (seg === 'Grand Public') return t('segmentGrandPublic');
-    if (seg === 'Jeune') return t('segmentJeune');
-    if (seg === 'Professionnel') return t('segmentPro');
-    if (seg === 'VIP') return t('segmentVIP');
-    return seg;
+  // Fetch clients from API
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/clients');
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      const result = await response.json();
+      if (result.success && result.data) {
+        setApiClients(result.data);
+        if (result.data.length > 0 && !selectedClientId) {
+          setSelectedClientId(result.data[0].id);
+        }
+      } else {
+        throw new Error(result.message || 'Erreur lors du chargement des clients');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const translateRisk = (risk) => {
-    if (risk === 'Faible') return t('riskFaible');
-    if (risk === 'Moyen') return t('riskMoyen');
-    if (risk === 'Élevé') return t('riskEleve');
-    return risk;
-  };
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
-  // Selected client details object
-  const selectedClient = clients.find(c => c.id === selectedClientId) || clients[0];
+  // Selected client details
+  const selectedClient = apiClients.find(c => c.id === selectedClientId) || apiClients[0];
 
-  // Filtering clients
-  const filteredClients = clients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.phone.includes(searchQuery);
+  // Filtering
+  const filteredClients = apiClients.filter(client => {
+    const matchesSearch =
+      client.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.contact && client.contact.includes(searchQuery));
 
-    // Support filtering across English/French equivalents
-    const matchesSegment = clientSegmentFilter === 'All' ||
-      client.segment === clientSegmentFilter ||
-      (clientSegmentFilter === 'Mass Market' && client.segment === 'Grand Public') ||
-      (clientSegmentFilter === 'Youth' && client.segment === 'Jeune') ||
-      (clientSegmentFilter === 'Business' && client.segment === 'Professionnel');
+    const matchesSegment = segmentFilter === 'All' ||
+      client.valueSegment === segmentFilter;
 
-    const matchesRisk = clientRiskFilter === 'All' ||
-      client.churnRisk === clientRiskFilter ||
-      (clientRiskFilter === 'Low' && client.churnRisk === 'Faible') ||
-      (clientRiskFilter === 'Medium' && client.churnRisk === 'Moyen') ||
-      (clientRiskFilter === 'High' && client.churnRisk === 'Élevé');
+    const matchesActivity = activityFilter === 'All' ||
+      client.flag_activity === activityFilter;
 
-    return matchesSearch && matchesSegment && matchesRisk;
+    return matchesSearch && matchesSegment && matchesActivity;
   });
 
-  const totalClients = clients.length;
-  const highRiskClients = clients.filter(c => c.churnRisk === 'Élevé').length;
+  // Dynamic filter options
+  const uniqueSegments = [...new Set(apiClients.map(c => c.valueSegment))];
+  const uniqueActivities = [...new Set(apiClients.map(c => c.flag_activity))];
 
   const startRecommendationForClient = (client) => {
     navigate('/recommendation', { state: { clientId: client.id } });
   };
 
+  // Badge color helpers
+  const getSegmentBadgeClass = (segment) => {
+    switch (segment) {
+      case 'VHV': return 'red';
+      case 'HV': return 'orange';
+      case 'MV': return 'blue';
+      case 'LV': return 'green';
+      default: return 'blue';
+    }
+  };
+
+  const getActivityBadgeClass = (activity) => {
+    return activity === 'Active' ? 'green' : 'red';
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1, gap: '16px', padding: '60px' }}>
+        <div className="loading-spinner" />
+        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600 }}>
+          Chargement des clients...
+        </p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1, gap: '16px', padding: '60px' }}>
+        <div style={{
+          width: '64px', height: '64px', borderRadius: '50%',
+          background: 'var(--error-glow)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', fontSize: '28px'
+        }}>⚠️</div>
+        <p style={{ color: 'var(--error)', fontSize: '14px', fontWeight: 700 }}>
+          Erreur: {error}
+        </p>
+        <button
+          className="btn-primary"
+          style={{ width: 'auto', padding: '10px 24px' }}
+          onClick={() => window.location.reload()}
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flexGrow: 1 }}>
-      {/* KPIs Header */}
-      <div className="kpi-row">
-        <div className="kpi-card">
-          <div className="kpi-icon-box red">👤</div>
-          <div className="kpi-info">
-            <span className="kpi-value">{totalClients}</span>
-            <span className="kpi-label">{t('kpiTotalClients')}</span>
-          </div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-icon-box warning">⚠️</div>
-          <div className="kpi-info">
-            <span className="kpi-value">{highRiskClients}</span>
-            <span className="kpi-label">{t('kpiRiskClients')}</span>
-          </div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-icon-box green">📉</div>
-          <div className="kpi-info">
-            <span className="kpi-value">12.4%</span>
-            <span className="kpi-label">{t('kpiChurnRate')}</span>
-          </div>
-        </div>
-      </div>
-
       {/* Filters toolbar */}
       <div className="toolbar">
         <div className="search-wrapper">
@@ -108,24 +155,23 @@ export default function ClientsView() {
         <div className="filter-group">
           <select
             className="filter-select"
-            value={clientSegmentFilter}
-            onChange={(e) => setClientSegmentFilter(e.target.value)}
+            value={segmentFilter}
+            onChange={(e) => setSegmentFilter(e.target.value)}
           >
             <option value="All">{t('allSegments')}</option>
-            <option value="Grand Public">{lang === 'fr' ? 'Grand Public' : 'Mass Market'}</option>
-            <option value="Jeune">{lang === 'fr' ? 'Jeune' : 'Youth'}</option>
-            <option value="Professionnel">{lang === 'fr' ? 'Professionnel' : 'Business'}</option>
-            <option value="VIP">VIP</option>
+            {uniqueSegments.map(seg => (
+              <option key={seg} value={seg}>{seg}</option>
+            ))}
           </select>
           <select
             className="filter-select"
-            value={clientRiskFilter}
-            onChange={(e) => setClientRiskFilter(e.target.value)}
+            value={activityFilter}
+            onChange={(e) => setActivityFilter(e.target.value)}
           >
-            <option value="All">{t('allRisks')}</option>
-            <option value="Faible">{lang === 'fr' ? 'Faible' : 'Low'}</option>
-            <option value="Moyen">{lang === 'fr' ? 'Moyen' : 'Medium'}</option>
-            <option value="Élevé">{lang === 'fr' ? 'Élevé' : 'High'}</option>
+            <option value="All">Toutes les activités</option>
+            {uniqueActivities.map(act => (
+              <option key={act} value={act}>{act}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -140,9 +186,9 @@ export default function ClientsView() {
               <thead>
                 <tr>
                   <th>{t('thClientContact')}</th>
-                  <th>{t('thSegment')}</th>
+                  <th>Activité</th>
                   <th>{t('thSpend')}</th>
-                  <th>{t('thRisk')}</th>
+                  <th>{t('thSegment')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -156,28 +202,28 @@ export default function ClientsView() {
                       <div className="client-meta-cell">
                         <div
                           className="client-avatar-circle"
-                          style={{ backgroundColor: client.avatarColor }}
+                          style={{ backgroundColor: getAvatarColor(client.full_name) }}
                         >
-                          {client.name.split(' ').map(n => n[0]).join('')}
+                          {client.full_name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div className="client-details-mini">
-                          <span className="client-name-bold">{client.name}</span>
-                          <span className="client-phone-sub">{client.phone}</span>
+                          <span className="client-name-bold">{client.full_name}</span>
+                          <span className="client-phone-sub">{client.contact}</span>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 600, fontSize: '13px' }}>{translateSegment(client.segment)}</span>
+                      <span className={`badge ${getActivityBadgeClass(client.flag_activity)}`}>
+                        {client.flag_activity}
+                      </span>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 700 }}>{client.currentSpend} DZD</span>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{client.currentPlan}</div>
+                      <span style={{ fontWeight: 700 }}>{client.avg_real_rev} DZD</span>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{client.clientPastOfferName}</div>
                     </td>
                     <td>
-                      <span className={`badge ${client.churnRisk === 'Élevé' ? 'red' :
-                        client.churnRisk === 'Moyen' ? 'orange' : 'green'
-                        }`}>
-                        {translateRisk(client.churnRisk)}
+                      <span className={`badge ${getSegmentBadgeClass(client.valueSegment)}`}>
+                        {client.valueSegment}
                       </span>
                     </td>
                   </tr>
@@ -200,13 +246,13 @@ export default function ClientsView() {
             <div className="detail-header">
               <div
                 className="avatar-large"
-                style={{ backgroundColor: selectedClient.avatarColor }}
+                style={{ backgroundColor: getAvatarColor(selectedClient.full_name) }}
               >
-                {selectedClient.name.split(' ').map(n => n[0]).join('')}
+                {selectedClient.full_name.split(' ').map(n => n[0]).join('')}
               </div>
               <div className="detail-title-sec">
-                <span className="detail-name">{selectedClient.name}</span>
-                <span className="detail-phone">📱 {selectedClient.phone}</span>
+                <span className="detail-name">{selectedClient.full_name}</span>
+                <span className="detail-phone">📱 {selectedClient.contact}</span>
               </div>
             </div>
 
@@ -214,12 +260,12 @@ export default function ClientsView() {
               <h4 className="offer-features-title">{t('profileParamsTitle')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '8px' }}>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('currentPlanLabel')}</span>
-                  <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.currentPlan}</p>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Offre actuelle</span>
+                  <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.clientPastOfferName}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('targetBudgetLabel')}</span>
-                  <p style={{ fontWeight: 700, fontSize: '14px', color: 'var(--brand-red)' }}>{selectedClient.budgetLimit} DZD</p>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenu maximum potentiel</span>
+                  <p style={{ fontWeight: 700, fontSize: '14px', color: 'var(--brand-red)' }}>{selectedClient.potential_max_rev} DZD</p>
                 </div>
               </div>
             </div>
@@ -230,13 +276,13 @@ export default function ClientsView() {
                 <div className="usage-stat-box">
                   <span className="usage-stat-label">{t('internetVolume')}</span>
                   <span className="usage-stat-value">
-                    {selectedClient.dataUsageGB} <span className="usage-stat-unit">GB</span>
+                    {selectedClient.avg_volume_data_mo} <span className="usage-stat-unit">Mo</span>
                   </span>
                   <div className="telemetry-progress-wrapper">
                     <div className="progress-bar-bg">
                       <div
                         className="progress-bar-fill red"
-                        style={{ width: `${Math.min(100, (selectedClient.dataUsageGB / 120) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (selectedClient.avg_volume_data_mo / 50) * 100)}%` }}
                       ></div>
                     </div>
                   </div>
@@ -245,16 +291,39 @@ export default function ClientsView() {
                 <div className="usage-stat-box">
                   <span className="usage-stat-label">{t('voiceMinutes')}</span>
                   <span className="usage-stat-value">
-                    {selectedClient.voiceMinutes} <span className="usage-stat-unit">min</span>
+                    {selectedClient.avg_traf_total} <span className="usage-stat-unit">h</span>
                   </span>
                   <div className="telemetry-progress-wrapper">
                     <div className="progress-bar-bg">
                       <div
                         className="progress-bar-fill purple"
-                        style={{ width: `${Math.min(100, (selectedClient.voiceMinutes / 3500) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (selectedClient.avg_traf_total / 10) * 100)}%` }}
                       ></div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Revenue & Tenure section */}
+            <div>
+              <h4 className="offer-features-title">Revenus & Tenure</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '8px' }}>
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenue M1</span>
+                  <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.rev_m1} DZD</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenue M2</span>
+                  <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.rev_m2} DZD</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenue M3</span>
+                  <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.rev_m3} DZD</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Tenure</span>
+                  <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.tenure} mois</p>
                 </div>
               </div>
             </div>

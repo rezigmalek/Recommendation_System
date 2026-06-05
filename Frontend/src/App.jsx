@@ -8,6 +8,8 @@ import ClientsView from './components/clients/ClientsView';
 import OffersView from './components/offers/OffersView';
 import RecommendationWizard from './components/recommendations/RecommendationWizard';
 import HistoryView from './components/history/HistoryView';
+import Recommendation from './components/recommendations/Recommendation';
+import RecommendationResult from './components/recommendations/RecommendationResult';
 
 function App() {
   return (
@@ -18,7 +20,8 @@ function App() {
             <Route path="/" element={<Welcome />} />
             <Route path="/clients" element={<ClientsView />} />
             <Route path="/offres" element={<OffersView />} />
-            <Route path="/recommendation" element={<RecommendationWizard />} />
+            <Route path="/recommendation" element={<Recommendation />} />
+            <Route path="/recommendation-result" element={<RecommendationResult />} />
             <Route path="/history" element={<HistoryView />} />
           </Route>
         </Routes>

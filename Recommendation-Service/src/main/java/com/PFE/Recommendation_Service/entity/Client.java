@@ -4,6 +4,7 @@ public class Client {
 
     private String clientReference;
     private String clientName;
+    private String contact;
 
     private Double clientPastOfferReference;
     private String clientPastOfferName;
@@ -126,6 +127,14 @@ public class Client {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 
     public Double getClientPastOfferReference() {

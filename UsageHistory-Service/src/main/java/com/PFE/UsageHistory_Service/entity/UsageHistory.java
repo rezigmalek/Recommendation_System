@@ -1,7 +1,7 @@
 package com.PFE.UsageHistory_Service.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usage_history")
@@ -15,7 +15,7 @@ public class UsageHistory {
     private Integer recommendationReference;
 
     @Column(name = "date")
-    private LocalDate date;
+    private LocalDateTime date;
 
     @Column(name = "total_clients")
     private Integer totalClients;
@@ -42,11 +42,11 @@ public class UsageHistory {
         this.recommendationReference = recommendationReference;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

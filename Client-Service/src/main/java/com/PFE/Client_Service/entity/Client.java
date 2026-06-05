@@ -16,6 +16,21 @@ public class Client {
     @Column(name = "full_name")
     private String full_name;
 
+    @Column(name = "contact")
+    private String contact;
+
+    @Column(name = "value_segment")
+    private String valueSegment;
+
+    @Column(name = "client_past_offer_name")
+    private String clientPastOfferName;
+
+    @Column(name = "client_past_offer_price")
+    private Double clientPastOfferPrice;
+
+    @Column(name = "client_past_offer_reference")
+    private Double clientPastOfferReference;
+
     @Column(name = "flag_activity")
     private String flag_activity;
 
@@ -79,6 +94,46 @@ public String getFull_name() {
 
 public void setFull_name(String full_name) {
     this.full_name = full_name;
+}
+
+public String getContact() {
+    return contact;
+}
+
+public void setContact(String contact) {
+    this.contact = contact;
+}
+
+public String getValueSegment() {
+    return valueSegment;
+}
+
+public void setValueSegment(String valueSegment) {
+    this.valueSegment = valueSegment;
+}
+
+public String getClientPastOfferName() {
+    return clientPastOfferName;
+}
+
+public void setClientPastOfferName(String clientPastOfferName) {
+    this.clientPastOfferName = clientPastOfferName;
+}
+
+public Double getClientPastOfferPrice() {
+    return clientPastOfferPrice;
+}
+
+public void setClientPastOfferPrice(Double clientPastOfferPrice) {
+    this.clientPastOfferPrice = clientPastOfferPrice;
+}
+
+public Double getClientPastOfferReference() {
+    return clientPastOfferReference;
+}
+
+public void setClientPastOfferReference(Double clientPastOfferReference) {
+    this.clientPastOfferReference = clientPastOfferReference;
 }
 
 public String getFlag_activity() {

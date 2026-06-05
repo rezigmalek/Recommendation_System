@@ -85,4 +85,9 @@ public class OfferService {
 
         return offers;
     }
+
+    // ================= GET ALL OFFERS =================
+    public List<Offer> getAllOffers() {
+        return offerRepository.findAll();
+    }
 }

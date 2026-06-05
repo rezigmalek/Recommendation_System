@@ -34,4 +34,19 @@ public class OfferController {
                 )
         );
     }
+
+    // ===================== GET ALL OFFERS =====================
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Offer>>> getAllOffers() {
+
+        List<Offer> offers = offerService.getAllOffers();
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Offers retrieved successfully",
+                        true,
+                        offers
+                )
+        );
+    }
 }

@@ -34,6 +34,7 @@ logger.info(f"Model loaded - {len(MODEL_COLUMNS)} features")
 CLIENT_INFO_FIELDS = [
     "Subs_Id",
     "Client_name",
+    "Contact"
     "Client_past_offer_reference",
     "Client_past_offer_name",
     "Client_past_offer_price",

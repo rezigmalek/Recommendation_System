@@ -175,108 +175,109 @@ public class RecommendationService {
             Client client = new Client();
             client.setClientReference(getString(row.getCell(0)));
             client.setClientName(getString(row.getCell(1)));
-            client.setClientPastOfferReference(getDouble(row.getCell(2)));
-            client.setClientPastOfferName(getString(row.getCell(3)));
-            client.setClientPastOfferPrice(getDouble(row.getCell(4)));
-            client.setFlagActivity(getString(row.getCell(5)));
-            client.setValueSegment(getString(row.getCell(6)));
-            client.setPasivityO(getDouble(row.getCell(7)));
-            client.setAvgRealRev(getDouble(row.getCell(8)));
-            client.setPotentialMaxRev(getDouble(row.getCell(9)));
+            client.setContact(getString(row.getCell(2)));
+            client.setClientPastOfferReference(getDouble(row.getCell(3)));
+            client.setClientPastOfferName(getString(row.getCell(4)));
+            client.setClientPastOfferPrice(getDouble(row.getCell(5)));
+            client.setFlagActivity(getString(row.getCell(6)));
+            client.setValueSegment(getString(row.getCell(7)));
+            client.setPasivityO(getDouble(row.getCell(8)));
+            client.setAvgRealRev(getDouble(row.getCell(9)));
+            client.setPotentialMaxRev(getDouble(row.getCell(10)));
 
-            client.setAvgTrafOutVoiceOnnet(getDouble(row.getCell(10)));
-            client.setTrafOutVoiceOnnetM1(getDouble(row.getCell(11)));
-            client.setTrafOutVoiceOnnetM2(getDouble(row.getCell(12)));
-            client.setTrafOutVoiceOnnetM3(getDouble(row.getCell(13)));
-            client.setTrafOutVoiceOnnetM4(getDouble(row.getCell(14)));
-            client.setTrafOutVoiceOnnetM5(getDouble(row.getCell(15)));
-            client.setTrafOutVoiceOnnetM6(getDouble(row.getCell(16)));
+            client.setAvgTrafOutVoiceOnnet(getDouble(row.getCell(11)));
+            client.setTrafOutVoiceOnnetM1(getDouble(row.getCell(12)));
+            client.setTrafOutVoiceOnnetM2(getDouble(row.getCell(13)));
+            client.setTrafOutVoiceOnnetM3(getDouble(row.getCell(14)));
+            client.setTrafOutVoiceOnnetM4(getDouble(row.getCell(15)));
+            client.setTrafOutVoiceOnnetM5(getDouble(row.getCell(16)));
+            client.setTrafOutVoiceOnnetM6(getDouble(row.getCell(17)));
 
-            client.setAvgTrafOutVoiceOffnet(getDouble(row.getCell(17)));
-            client.setTrafOutVoiceOffnetM1(getDouble(row.getCell(18)));
-            client.setTrafOutVoiceOffnetM2(getDouble(row.getCell(19)));
-            client.setTrafOutVoiceOffnetM3(getDouble(row.getCell(20)));
-            client.setTrafOutVoiceOffnetM4(getDouble(row.getCell(21)));
-            client.setTrafOutVoiceOffnetM5(getDouble(row.getCell(22)));
-            client.setTrafOutVoiceOffnetM6(getDouble(row.getCell(23)));
+            client.setAvgTrafOutVoiceOffnet(getDouble(row.getCell(18)));
+            client.setTrafOutVoiceOffnetM1(getDouble(row.getCell(19)));
+            client.setTrafOutVoiceOffnetM2(getDouble(row.getCell(20)));
+            client.setTrafOutVoiceOffnetM3(getDouble(row.getCell(21)));
+            client.setTrafOutVoiceOffnetM4(getDouble(row.getCell(22)));
+            client.setTrafOutVoiceOffnetM5(getDouble(row.getCell(23)));
+            client.setTrafOutVoiceOffnetM6(getDouble(row.getCell(24)));
 
-            client.setAvgTrafOutVoiceInter(getDouble(row.getCell(24)));
-            client.setTrafOutVoiceInterM1(getDouble(row.getCell(25)));
-            client.setTrafOutVoiceInterM2(getDouble(row.getCell(26)));
-            client.setTrafOutVoiceInterM3(getDouble(row.getCell(27)));
-            client.setTrafOutVoiceInterM4(getDouble(row.getCell(28)));
-            client.setTrafOutVoiceInterM5(getDouble(row.getCell(29)));
-            client.setTrafOutVoiceInterM6(getDouble(row.getCell(30)));
+            client.setAvgTrafOutVoiceInter(getDouble(row.getCell(25)));
+            client.setTrafOutVoiceInterM1(getDouble(row.getCell(26)));
+            client.setTrafOutVoiceInterM2(getDouble(row.getCell(27)));
+            client.setTrafOutVoiceInterM3(getDouble(row.getCell(28)));
+            client.setTrafOutVoiceInterM4(getDouble(row.getCell(29)));
+            client.setTrafOutVoiceInterM5(getDouble(row.getCell(30)));
+            client.setTrafOutVoiceInterM6(getDouble(row.getCell(31)));
 
-            client.setAvgTrafVoiceRoaming(getDouble(row.getCell(31)));
-            client.setTrafVoiceRoamingM1(getDouble(row.getCell(32)));
-            client.setTrafVoiceRoamingM2(getDouble(row.getCell(33)));
-            client.setTrafVoiceRoamingM3(getDouble(row.getCell(34)));
-            client.setTrafVoiceRoamingM4(getDouble(row.getCell(35)));
-            client.setTrafVoiceRoamingM5(getDouble(row.getCell(36)));
-            client.setTrafVoiceRoamingM6(getDouble(row.getCell(37)));
+            client.setAvgTrafVoiceRoaming(getDouble(row.getCell(32)));
+            client.setTrafVoiceRoamingM1(getDouble(row.getCell(33)));
+            client.setTrafVoiceRoamingM2(getDouble(row.getCell(34)));
+            client.setTrafVoiceRoamingM3(getDouble(row.getCell(35)));
+            client.setTrafVoiceRoamingM4(getDouble(row.getCell(36)));
+            client.setTrafVoiceRoamingM5(getDouble(row.getCell(37)));
+            client.setTrafVoiceRoamingM6(getDouble(row.getCell(38)));
 
-            client.setAvgTrafTotal(getDouble(row.getCell(38)));
+            client.setAvgTrafTotal(getDouble(row.getCell(39)));
 
-            client.setSumTrafOutM1(getDouble(row.getCell(39)));
-            client.setSumTrafOutM2(getDouble(row.getCell(40)));
-            client.setSumTrafOutM3(getDouble(row.getCell(41)));
-            client.setSumTrafOutM4(getDouble(row.getCell(42)));
-            client.setSumTrafOutM5(getDouble(row.getCell(43)));
-            client.setSumTrafOutM6(getDouble(row.getCell(44)));
+            client.setSumTrafOutM1(getDouble(row.getCell(40)));
+            client.setSumTrafOutM2(getDouble(row.getCell(41)));
+            client.setSumTrafOutM3(getDouble(row.getCell(42)));
+            client.setSumTrafOutM4(getDouble(row.getCell(43)));
+            client.setSumTrafOutM5(getDouble(row.getCell(44)));
+            client.setSumTrafOutM6(getDouble(row.getCell(45)));
 
-            client.setAvgVolumeDataMo(getDouble(row.getCell(45)));
-            client.setVolumeDataMoM1(getDouble(row.getCell(46)));
-            client.setVolumeDataMoM2(getDouble(row.getCell(47)));
-            client.setVolumeDataMoM3(getDouble(row.getCell(48)));
-            client.setVolumeDataMoM4(getDouble(row.getCell(49)));
-            client.setVolumeDataMoM5(getDouble(row.getCell(50)));
-            client.setVolumeDataMoM6(getDouble(row.getCell(51)));
+            client.setAvgVolumeDataMo(getDouble(row.getCell(46)));
+            client.setVolumeDataMoM1(getDouble(row.getCell(47)));
+            client.setVolumeDataMoM2(getDouble(row.getCell(48)));
+            client.setVolumeDataMoM3(getDouble(row.getCell(49)));
+            client.setVolumeDataMoM4(getDouble(row.getCell(50)));
+            client.setVolumeDataMoM5(getDouble(row.getCell(51)));
+            client.setVolumeDataMoM6(getDouble(row.getCell(52)));
 
-            client.setTrafOnnetRatio(getDouble(row.getCell(52)));
-            client.setTrafOffnetRatio(getDouble(row.getCell(53)));
-            client.setTrafInterRatio(getDouble(row.getCell(54)));
+            client.setTrafOnnetRatio(getDouble(row.getCell(53)));
+            client.setTrafOffnetRatio(getDouble(row.getCell(54)));
+            client.setTrafInterRatio(getDouble(row.getCell(55)));
 
-            client.setTrafOnnetRatioM1(getDouble(row.getCell(55)));
-            client.setTrafOffnetRatioM1(getDouble(row.getCell(56)));
-            client.setTrafInterRatioM1(getDouble(row.getCell(57)));
+            client.setTrafOnnetRatioM1(getDouble(row.getCell(56)));
+            client.setTrafOffnetRatioM1(getDouble(row.getCell(57)));
+            client.setTrafInterRatioM1(getDouble(row.getCell(58)));
 
-            client.setTrafOnnetRatioM2(getDouble(row.getCell(58)));
-            client.setTrafOffnetRatioM2(getDouble(row.getCell(59)));
-            client.setTrafInterRatioM2(getDouble(row.getCell(60)));
+            client.setTrafOnnetRatioM2(getDouble(row.getCell(59)));
+            client.setTrafOffnetRatioM2(getDouble(row.getCell(60)));
+            client.setTrafInterRatioM2(getDouble(row.getCell(61)));
 
-            client.setTrafOnnetRatioM3(getDouble(row.getCell(61)));
-            client.setTrafOffnetRatioM3(getDouble(row.getCell(62)));
-            client.setTrafInterRatioM3(getDouble(row.getCell(63)));
+            client.setTrafOnnetRatioM3(getDouble(row.getCell(62)));
+            client.setTrafOffnetRatioM3(getDouble(row.getCell(63)));
+            client.setTrafInterRatioM3(getDouble(row.getCell(64)));
 
-            client.setTrafOnnetRatioM4(getDouble(row.getCell(64)));
-            client.setTrafOffnetRatioM4(getDouble(row.getCell(65)));
-            client.setTrafInterRatioM4(getDouble(row.getCell(66)));
+            client.setTrafOnnetRatioM4(getDouble(row.getCell(65)));
+            client.setTrafOffnetRatioM4(getDouble(row.getCell(66)));
+            client.setTrafInterRatioM4(getDouble(row.getCell(67)));
 
-            client.setTrafOnnetRatioM5(getDouble(row.getCell(67)));
-            client.setTrafOffnetRatioM5(getDouble(row.getCell(68)));
-            client.setTrafInterRatioM5(getDouble(row.getCell(69)));
+            client.setTrafOnnetRatioM5(getDouble(row.getCell(68)));
+            client.setTrafOffnetRatioM5(getDouble(row.getCell(69)));
+            client.setTrafInterRatioM5(getDouble(row.getCell(70)));
 
-            client.setTrafOnnetRatioM6(getDouble(row.getCell(70)));
-            client.setTrafOffnetRatioM6(getDouble(row.getCell(71)));
-            client.setTrafInterRatioM6(getDouble(row.getCell(72)));
+            client.setTrafOnnetRatioM6(getDouble(row.getCell(71)));
+            client.setTrafOffnetRatioM6(getDouble(row.getCell(72)));
+            client.setTrafInterRatioM6(getDouble(row.getCell(73)));
 
-            client.setRevM1(getDouble(row.getCell(73)));
-            client.setRevM2(getDouble(row.getCell(74)));
-            client.setRevM3(getDouble(row.getCell(75)));
-            client.setRevM4(getDouble(row.getCell(76)));
-            client.setRevM5(getDouble(row.getCell(77)));
-            client.setRevM6(getDouble(row.getCell(78)));
+            client.setRevM1(getDouble(row.getCell(74)));
+            client.setRevM2(getDouble(row.getCell(75)));
+            client.setRevM3(getDouble(row.getCell(76)));
+            client.setRevM4(getDouble(row.getCell(77)));
+            client.setRevM5(getDouble(row.getCell(78)));
+            client.setRevM6(getDouble(row.getCell(79)));
 
-            client.setTop1Usage(getDouble(row.getCell(79)));
-            client.setTop2Usage(getDouble(row.getCell(80)));
-            client.setTop3Usage(getDouble(row.getCell(81)));
+            client.setTop1Usage(getDouble(row.getCell(80)));
+            client.setTop2Usage(getDouble(row.getCell(81)));
+            client.setTop3Usage(getDouble(row.getCell(82)));
 
-            client.setTop1Revenue(getDouble(row.getCell(82)));
-            client.setTop2Revenue(getDouble(row.getCell(83)));
-            client.setTop3Revenue(getDouble(row.getCell(84)));
+            client.setTop1Revenue(getDouble(row.getCell(83)));
+            client.setTop2Revenue(getDouble(row.getCell(84)));
+            client.setTop3Revenue(getDouble(row.getCell(85)));
 
-            client.setTenure(getDouble(row.getCell(85)));
+            client.setTenure(getDouble(row.getCell(86)));
 
             // -------------------------------------------------------
             // 2. Construire la Map pour l'appel au modèle IA
@@ -285,6 +286,7 @@ public class RecommendationService {
             Map<String, Object> clientMap = new HashMap<>();
             clientMap.put("Subs_Id", client.getClientReference());
             clientMap.put("Client_name", client.getClientName());
+            clientMap.put("Contact", client.getContact());
             clientMap.put("Client_past_offer_reference", client.getClientPastOfferReference());
             clientMap.put("Client_past_offer_name", client.getClientPastOfferName());
             clientMap.put("Client_past_offer_price", client.getClientPastOfferPrice());

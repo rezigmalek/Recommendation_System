@@ -9,11 +9,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -35,7 +36,7 @@ public class UsageHistoryService {
 
         UsageHistory history = new UsageHistory();
         history.setRecommendationReference(recommendationReference);
-        history.setDate(LocalDate.now());
+        history.setDate(LocalDateTime.now());
         history.setTotalClients(totalClients);
         history.setTotalOffers(totalOffers);
 
@@ -86,7 +87,8 @@ public class UsageHistoryService {
     }
 
     public List<UsageHistory> getAllHistory() {
-        return usageHistoryRepository.findAll();
+        return usageHistoryRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "date"));
     }
 
     public UsageHistory getHistoryById(Long id) {

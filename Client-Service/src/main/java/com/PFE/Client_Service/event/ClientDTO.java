@@ -4,6 +4,8 @@ public class ClientDTO {
 
     private String clientReference;
     private String clientName;
+    private String contact;
+
     private String valueSegment;
     private String flagActivity;
     private Double avgRealRev;
@@ -12,6 +14,8 @@ public class ClientDTO {
     private Double pasivityO;
     private String clientPastOfferName;
     private Double clientPastOfferPrice;
+    private Double clientPastOfferReference;
+
 
     // Trafic
     private Double avgTrafOutVoiceOnnet;
@@ -32,6 +36,8 @@ public class ClientDTO {
     public void setClientReference(String v)        { this.clientReference = v; }
     public String getClientName()                   { return clientName; }
     public void setClientName(String v)             { this.clientName = v; }
+    public String getContact()                      { return contact; }
+    public void setContact(String v)                { this.contact = v; }
     public String getValueSegment()                 { return valueSegment; }
     public void setValueSegment(String v)           { this.valueSegment = v; }
     public String getFlagActivity()                 { return flagActivity; }
@@ -48,6 +54,8 @@ public class ClientDTO {
     public void setClientPastOfferName(String v)    { this.clientPastOfferName = v; }
     public Double getClientPastOfferPrice()         { return clientPastOfferPrice; }
     public void setClientPastOfferPrice(Double v)   { this.clientPastOfferPrice = v; }
+    public Double getClientPastOfferReference()     { return clientPastOfferReference; }
+    public void setClientPastOfferReference(Double v) { this.clientPastOfferReference = v; }
     public Double getAvgTrafOutVoiceOnnet()         { return avgTrafOutVoiceOnnet; }
     public void setAvgTrafOutVoiceOnnet(Double v)   { this.avgTrafOutVoiceOnnet = v; }
     public Double getAvgTrafOutVoiceOffnet()        { return avgTrafOutVoiceOffnet; }

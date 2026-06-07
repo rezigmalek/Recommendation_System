@@ -3,6 +3,8 @@ import pandas as pd
 import pickle
 import os
 import logging
+from flask_cors import CORS
+CORS
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)

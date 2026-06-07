@@ -1,6 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAppContext } from '../../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
+import Loading from '../common/Loading';
 
 // ─── useForm hook ──────────────────────────────────────────────
 function useForm(initialValues, validate) {
@@ -115,6 +119,10 @@ function NumericInput({ label, value, error, touched, onChange, onBlur, min = 1,
 // ─── Main Component ────────────────────────────────────────────
 export default function Recommendation({ onSubmit }) {
   const { t, lang } = useAppContext();
+  const navigate = useNavigate();
+
+  // ── Loading state ──────────────────────────────────────────
+  const [loading, setLoading] = useState(false);
 
   const { values, errors, touched, setValue, setTouchedField, handleSubmit } = useForm(
     { clientFile: null, offresFile: null, topN: 5 },
@@ -134,10 +142,87 @@ export default function Recommendation({ onSubmit }) {
     }
     return err;
   };
+  const createUsageHistory = async (clientsFile, offersFile, recommendationReference) => {
+    try {
+      const formData = new FormData();
+      formData.append('clientsFile', clientsFile);
+      formData.append('offersFile', offersFile);
+      formData.append('recommendationReference', recommendationReference);
 
-  const handleValid = (vals) => {
-    if (onSubmit) onSubmit(vals);
+      const res = await fetch('/api/history', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        console.log('Usage history created:', data.data);
+      } else {
+        console.warn('Usage history failed:', data.message);
+      }
+    } catch (err) {
+      console.error('Error creating usage history:', err);
+    }
   };
+
+  const fetchLastIndex = async () => {
+    try {
+      const response = await fetch(`/api/recommendations/last-reference`);
+      if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+      const result = await response.json();
+      if (result) {
+        console.log("Last Index:", result);
+      }
+      return result;
+    } catch (err) {
+      console.error("Error fetching last index:", err);
+    }
+  };
+
+  const handleValid = async (vals) => {
+    try {
+      const LastIndex = await fetchLastIndex();
+      const NextIndex = LastIndex + 1;
+
+      const formData = new FormData();
+      formData.append('clientsFile', vals.clientFile);
+      formData.append('offersFile', vals.offresFile);
+      formData.append('topN', vals.topN);
+
+      setLoading(true);
+
+      const res = await fetch('/api/recommendations/upload-data', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        console.log('Recommendation generated:', data);
+        toast.success('Recommendation generated successfully');
+
+        // ── Créer l'historique en parallèle, sans bloquer la navigation ──
+        createUsageHistory(vals.clientFile, vals.offresFile, NextIndex);
+
+        navigate(`/recommendation-result/${NextIndex}`);
+      } else {
+        setLoading(false);
+        toast.error(data.message || 'Something went wrong');
+      }
+
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      toast.error('Server error while uploading files');
+    }
+  };
+
+  // ── Afficher Loading si en cours ───────────────────────────
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="glass-panel wizard-card" style={{ padding: '36px 40px' }}>

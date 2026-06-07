@@ -18,7 +18,6 @@ public class AnalyticsController {
         this.analyticsService = analyticsService;
     }
 
-    // ✅ POST - create analytics
     @PostMapping
     public ResponseEntity<ApiResponse<Analytics>> createAnalytics(
             @RequestBody Analytics analytics) {
@@ -34,7 +33,6 @@ public class AnalyticsController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ GET - by recommendation_reference
     @GetMapping("/recommendation/{reference}")
     public ResponseEntity<ApiResponse<List<Analytics>>> getByRecommendationReference(
             @PathVariable Integer reference) {

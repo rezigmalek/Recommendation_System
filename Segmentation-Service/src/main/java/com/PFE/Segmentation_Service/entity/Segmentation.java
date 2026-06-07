@@ -19,6 +19,9 @@ public class Segmentation {
     @Column(name = "offer_name")
     private String offerName;
 
+    @Column(name = "total_recommended_clients")
+    private int totalRecommendedClients;
+
     @Column(name = "minimum_avg_traf_data")
     private Double minimumAvgTrafData;
 
@@ -33,6 +36,9 @@ public class Segmentation {
 
     @Column(name = "activity")
     private String activity; // Loyal, Inactive
+
+    @Column(name = "activity_percentage")
+    private Double activityPercentage;
 
     public Segmentation() {
     }
@@ -69,6 +75,14 @@ public class Segmentation {
 
     public void setOfferName(String offerName) {
         this.offerName = offerName;
+    }
+
+    public int getTotalRecommendedClients() {
+        return totalRecommendedClients;
+    }
+
+    public void setTotalRecommendedClients(int totalRecommendedClients) {
+        this.totalRecommendedClients = totalRecommendedClients;
     }
 
     public Double getMinimumAvgTrafData() {
@@ -109,5 +123,13 @@ public class Segmentation {
 
     public void setActivity(String activity) {
         this.activity = activity;
+    }
+
+    public Double getActivityPercentage() {
+        return activityPercentage;
+    }
+
+    public void setActivityPercentage(Double activityPercentage) {
+        this.activityPercentage = activityPercentage;
     }
 }

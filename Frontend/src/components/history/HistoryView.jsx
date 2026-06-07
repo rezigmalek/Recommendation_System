@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function HistoryView() {
   const {
@@ -7,6 +8,7 @@ export default function HistoryView() {
     t
   } = useAppContext();
 
+  const navigate = useNavigate();
   const [historyList, setHistoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,6 +81,7 @@ export default function HistoryView() {
           <thead>
             <tr>
               <th>{t('thDateTime')}</th>
+              <th>Recommendation reference</th>
               <th>Total Clients</th>
               <th>Total Offers</th>
               <th>{t('thAction')}</th>
@@ -92,6 +95,11 @@ export default function HistoryView() {
                 {/* DATE */}
                 <td style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {formatDate(log.dateTime) || formatDate(log.date)}
+                </td>
+
+                {/* RECOMMENDATION REFERENCE */}
+                <td style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  {log.recommendationReference ?? log.recommendation_reference ?? log.id}
                 </td>
 
                 {/* TOTAL CLIENTS */}
@@ -118,7 +126,7 @@ export default function HistoryView() {
                       width: 'auto',
                       borderRadius: 'var(--radius-sm)'
                     }}
-                    onClick={() => setSelectedHistoryItem(log)}
+                    onClick={() => navigate(`/recommendation-result/${log.recommendationReference ?? log.recommendation_reference ?? log.id}`)}
                   >
                     {t('btnInspect')}
                   </button>

@@ -26,22 +26,19 @@ public class SegmentationKafkaConsumer {
     }
 
     @Transactional
-    @KafkaListener(
-        topics = "recommendation.created",
-        groupId = "segmentation-service",
-        containerFactory = "kafkaListenerContainerFactory"
-    )
+    @KafkaListener(topics = "recommendation.created", groupId = "segmentation-service", containerFactory = "kafkaListenerContainerFactory")
     public void onRecommendationCreated(RecommendationCreatedEvent event) {
 
-        if (event == null || event.getRecommendation() == null) return;
+        if (event == null || event.getRecommendation() == null)
+            return;
 
         log.info("Segmentation-Service received event [id={}]", event.getEventId());
 
         Integer recommendationRef = event.getRecommendation().getRecommendationReference();
-        List<ClientRecommendationDTO> clients =
-                event.getRecommendation().getClientsRecommendations();
+        List<ClientRecommendationDTO> clients = event.getRecommendation().getClientsRecommendations();
 
-        if (clients == null || clients.isEmpty()) return;
+        if (clients == null || clients.isEmpty())
+            return;
 
         // =================================================
         // GROUPER LES CLIENTS PAR OFFRE TOP1
@@ -50,14 +47,15 @@ public class SegmentationKafkaConsumer {
         Map<Integer, List<ClientRecommendationDTO>> clientsByOffer = new HashMap<>();
 
         for (ClientRecommendationDTO cr : clients) {
-            if (cr.getRecommendedOffers() == null || cr.getRecommendedOffers().isEmpty()) continue;
+            if (cr.getRecommendedOffers() == null || cr.getRecommendedOffers().isEmpty())
+                continue;
 
             RecommendedOfferDTO top1 = cr.getRecommendedOffers().get(0);
             Integer offerRef = top1.getOfferReference();
 
             clientsByOffer
-                .computeIfAbsent(offerRef, k -> new ArrayList<>())
-                .add(cr);
+                    .computeIfAbsent(offerRef, k -> new ArrayList<>())
+                    .add(cr);
         }
 
         // =================================================
@@ -75,41 +73,49 @@ public class SegmentationKafkaConsumer {
             // ── Minimum AVG Traf Data ──────────────────────────
             // Minimum de avgVolumeDataMo parmi tous les clients de cette offre
             double minAvgTrafData = offerClients.stream()
-                .filter(cr -> cr.getClient().getAvgVolumeDataMo() != null)
-                .mapToDouble(cr -> cr.getClient().getAvgVolumeDataMo())
-                .min().orElse(0.0);
+                    .filter(cr -> cr.getClient().getAvgVolumeDataMo() != null)
+                    .mapToDouble(cr -> cr.getClient().getAvgVolumeDataMo())
+                    .min().orElse(0.0);
 
             // ── Minimum AVG Traf Voice ─────────────────────────
             // Minimum de avgTrafTotal parmi tous les clients de cette offre
             double minAvgTrafVoice = offerClients.stream()
-                .filter(cr -> cr.getClient().getAvgTrafTotal() != null)
-                .mapToDouble(cr -> cr.getClient().getAvgTrafTotal())
-                .min().orElse(0.0);
+                    .filter(cr -> cr.getClient().getAvgTrafTotal() != null)
+                    .mapToDouble(cr -> cr.getClient().getAvgTrafTotal())
+                    .min().orElse(0.0);
 
             // ── Minimum AVG Revenue ────────────────────────────
             // Minimum de avgRealRev parmi tous les clients de cette offre
             double minAvgRevenue = offerClients.stream()
-                .filter(cr -> cr.getClient().getAvgRealRev() != null)
-                .mapToDouble(cr -> cr.getClient().getAvgRealRev())
-                .min().orElse(0.0);
+                    .filter(cr -> cr.getClient().getAvgRealRev() != null)
+                    .mapToDouble(cr -> cr.getClient().getAvgRealRev())
+                    .min().orElse(0.0);
 
             // ── Value Client majoritaire ───────────────────────
             // Low / Medium / High → prendre la valeur la plus fréquente
             String dominantValueClient = getMostFrequent(
-                offerClients.stream()
-                    .map(cr -> cr.getClient().getValueSegment())
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList())
-            );
+                    offerClients.stream()
+                            .map(cr -> cr.getClient().getValueSegment())
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()));
 
             // ── Activity majoritaire ───────────────────────────
             // Active / Inactive → prendre la valeur la plus fréquente
             String dominantActivity = getMostFrequent(
-                offerClients.stream()
+                    offerClients.stream()
+                            .map(cr -> cr.getClient().getFlagActivity())
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()));
+
+            // ── Activity Percentage ────────────────────────────
+            // Pourcentage des clients ayant l'activité dominante
+            long dominantActivityCount = offerClients.stream()
                     .map(cr -> cr.getClient().getFlagActivity())
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList())
-            );
+                    .filter(a -> a.equals(dominantActivity))
+                    .count();
+
+            double activityPercentage = ((double) dominantActivityCount / offerClients.size()) * 100;
 
             // ── Sauvegarder ────────────────────────────────────
             Segmentation segmentation = new Segmentation();
@@ -121,11 +127,13 @@ public class SegmentationKafkaConsumer {
             segmentation.setMinimumAvgRevenue(minAvgRevenue);
             segmentation.setValueClient(dominantValueClient);
             segmentation.setActivity(dominantActivity);
+            segmentation.setActivityPercentage(activityPercentage);
+            segmentation.setTotalRecommendedClients(offerClients.size());
 
             segmentationRepository.save(segmentation);
 
             log.info("Segmentation saved [offer={} | clients={} | value={} | activity={}]",
-                offerName, offerClients.size(), dominantValueClient, dominantActivity);
+                    offerName, offerClients.size(), dominantValueClient, dominantActivity);
         }
     }
 
@@ -133,13 +141,14 @@ public class SegmentationKafkaConsumer {
     // HELPER : valeur la plus fréquente dans une liste
     // =================================================
     private String getMostFrequent(List<String> values) {
-        if (values == null || values.isEmpty()) return "Unknown";
+        if (values == null || values.isEmpty())
+            return "Unknown";
 
         return values.stream()
-            .collect(Collectors.groupingBy(v -> v, Collectors.counting()))
-            .entrySet().stream()
-            .max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey)
-            .orElse("Unknown");
+                .collect(Collectors.groupingBy(v -> v, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("Unknown");
     }
 }

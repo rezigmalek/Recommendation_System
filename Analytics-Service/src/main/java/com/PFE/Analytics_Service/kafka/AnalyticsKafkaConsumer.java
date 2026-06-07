@@ -222,7 +222,8 @@ public class AnalyticsKafkaConsumer {
 
     private double getConversionWeight(double score) {
 
-        // Si tes scores sont de type 0-100
+        score = score * 100;
+
         if (score >= 90) return 1.0;
         if (score >= 80) return 0.8;
         if (score >= 70) return 0.6;

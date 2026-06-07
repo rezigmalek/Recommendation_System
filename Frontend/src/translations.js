@@ -13,7 +13,8 @@ export const translations = {
     noHistory: "Aucun historique",
 
     // Header
-    systemStatus: "Modèle IA Connecté",
+    systemStatusOffline: "Modèle IA Déconnecté",
+    systemStatusOnline: "Modèle IA Connecté",
     subHeader: "Système de prédiction & recommandation d'offres télécom",
     tabTitleClients: "Gestion des Clients",
     tabTitleOffers: "Catalogue des Offres Djezzy",
@@ -147,7 +148,8 @@ export const translations = {
     noHistory: "No history found",
 
     // Header
-    systemStatus: "AI Model Connected",
+    systemStatusOnline: "AI Model Connected",
+    systemStatusOffline: "AI Model Disconnected",
     subHeader: "Telecom offers prediction & recommendation system",
     tabTitleClients: "Client Management",
     tabTitleOffers: "Djezzy Offers Catalog",

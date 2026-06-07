@@ -72,6 +72,11 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendationService.getNextSequence());
     }
 
+    @GetMapping("/last-reference")
+    public ResponseEntity<Number> getLastReference() {
+        return ResponseEntity.ok(recommendationService.getLastSequence());
+    }
+
     // ================= UPLOAD FILES & RECOMMEND =================
 
     @PostMapping("/upload-data")

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
+import { useState, useEffect } from 'react';
 
 export default function Header() {
   const {
@@ -22,6 +23,27 @@ export default function Header() {
     if (path.startsWith('/history')) return t('tabTitleHistory');
     return t('tabTitleClients'); // fallback
   };
+
+  const [isOnline, setIsOnline] = useState(false);
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch('/ml/health');
+        if (response.ok) {
+          setIsOnline(true);
+        } else {
+          setIsOnline(false);
+        }
+      } catch {
+        setIsOnline(false);
+      }
+    };
+
+    checkHealth();                              // ping au montage
+    const interval = setInterval(checkHealth, 30000); // re-ping toutes les 30s
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="content-header">
@@ -57,8 +79,8 @@ export default function Header() {
         </button>
 
         <div className="system-status">
-          <div className="status-dot"></div>
-          <span>{t('systemStatus')}</span>
+          <div className={isOnline ? "status-dot" : "status-dot-offline"}></div>
+          <span>{isOnline ? t('systemStatusOnline') : t('systemStatusOffline')}</span>
         </div>
       </div>
     </header>

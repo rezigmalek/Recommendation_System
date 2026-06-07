@@ -11,4 +11,5 @@ public interface RecommendationRepository
 
     @Query("{ 'recommendationReference' : { $eq: ?0 } }")
     Optional<Recommendation> findByRecommendationReference(Number reference);
+    Optional<Recommendation> findTopByOrderByRecommendationReferenceDesc();
 }

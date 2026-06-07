@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
+import { useNavigate } from 'react-router-dom';
 
 export default function Sidebar() {
   const {
@@ -10,7 +11,7 @@ export default function Sidebar() {
     selectedClientId,
     t
   } = useAppContext();
-
+  const navigate = useNavigate();
   const [historyList, setHistoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -127,7 +128,7 @@ export default function Sidebar() {
                   cursor: 'pointer'
                 }}
                 onClick={() => {
-                  setSelectedHistoryItem(item);
+                  navigate(`/recommendation-result/${refCode}`);
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'var(--brand-red)';

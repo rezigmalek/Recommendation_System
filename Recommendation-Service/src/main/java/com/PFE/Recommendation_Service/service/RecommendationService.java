@@ -54,6 +54,12 @@ public class RecommendationService {
         return result.getInteger("seq");
     }
 
+    public Number getLastSequence() {
+        return recommendationRepository
+                .findTopByOrderByRecommendationReferenceDesc()
+                .map(Recommendation::getRecommendationReference)
+                .orElse(0);
+    }
     // ================= CREATE =================
 
     public Recommendation createRecommendation(Recommendation recommendation) {

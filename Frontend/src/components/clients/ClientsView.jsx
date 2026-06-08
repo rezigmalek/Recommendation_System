@@ -14,12 +14,46 @@ const getAvatarColor = (name) => {
 };
 
 export default function ClientsView() {
+
+  const texts = {
+    fr: {
+      loadingClients: "Chargement des clients...",
+      retry: "Réessayer",
+      allActivities: "Toutes les activités",
+      activity: "Activité",
+      currentOffer: "Offre actuelle",
+      potentialRevenue: "Revenu maximum potentiel",
+      revenueTenure: "Revenus & Tenure",
+      revenueM1: "Revenue M1",
+      revenueM2: "Revenue M2",
+      revenueM3: "Revenue M3",
+      tenure: "Tenure",
+      months: "mois",
+    },
+    en: {
+      loadingClients: "Loading clients...",
+      retry: "Retry",
+      allActivities: "All activities",
+      activity: "Activity",
+      currentOffer: "Current offer",
+      potentialRevenue: "Maximum potential revenue",
+      revenueTenure: "Revenue & Tenure",
+      revenueM1: "M1 Revenue",
+      revenueM2: "M2 Revenue",
+      revenueM3: "M3 Revenue",
+      tenure: "Tenure",
+      months: "months",
+    }
+  };
+
   const {
     selectedClientId,
     setSelectedClientId,
     lang,
     t
   } = useAppContext();
+
+  const txt = texts[lang] || texts.fr;
 
   const navigate = useNavigate();
 
@@ -91,10 +125,12 @@ export default function ClientsView() {
   // Badge color helpers
   const getSegmentBadgeClass = (segment) => {
     switch (segment) {
-      case 'VHV': return 'red';
-      case 'HV': return 'orange';
-      case 'MV': return 'blue';
-      case 'LV': return 'green';
+      case 'VHV': return 'green';
+      case 'HV': return 'green';
+      case 'MV': return 'orange';
+      case 'LV': return 'red';
+      case 'VLV': return 'red';
+      case 'NEW': return 'blue';
       default: return 'blue';
     }
   };
@@ -109,7 +145,7 @@ export default function ClientsView() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1, gap: '16px', padding: '60px' }}>
         <div className="loading-spinner" />
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600 }}>
-          Chargement des clients...
+          {txt.loadingClients}
         </p>
       </div>
     );
@@ -125,14 +161,14 @@ export default function ClientsView() {
           justifyContent: 'center', fontSize: '28px'
         }}>⚠️</div>
         <p style={{ color: 'var(--error)', fontSize: '14px', fontWeight: 700 }}>
-          Erreur: {error}
+          {txt.error}: {error}
         </p>
         <button
           className="btn-primary"
           style={{ width: 'auto', padding: '10px 24px' }}
           onClick={() => window.location.reload()}
         >
-          Réessayer
+          {txt.retry}
         </button>
       </div>
     );
@@ -168,7 +204,7 @@ export default function ClientsView() {
             value={activityFilter}
             onChange={(e) => setActivityFilter(e.target.value)}
           >
-            <option value="All">Toutes les activités</option>
+            <option value="All">{txt.allActivities}</option>
             {uniqueActivities.map(act => (
               <option key={act} value={act}>{act}</option>
             ))}
@@ -186,7 +222,7 @@ export default function ClientsView() {
               <thead>
                 <tr>
                   <th>{t('thClientContact')}</th>
-                  <th>Activité</th>
+                  <th>{txt.activity}</th>
                   <th>{t('thSpend')}</th>
                   <th>{t('thSegment')}</th>
                 </tr>
@@ -260,11 +296,11 @@ export default function ClientsView() {
               <h4 className="offer-features-title">{t('profileParamsTitle')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '8px' }}>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Offre actuelle</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{txt.currentOffer}</span>
                   <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.clientPastOfferName}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenu maximum potentiel</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{txt.potentialRevenue}</span>
                   <p style={{ fontWeight: 700, fontSize: '14px', color: 'var(--brand-red)' }}>{selectedClient.potential_max_rev} DZD</p>
                 </div>
               </div>
@@ -276,13 +312,13 @@ export default function ClientsView() {
                 <div className="usage-stat-box">
                   <span className="usage-stat-label">{t('internetVolume')}</span>
                   <span className="usage-stat-value">
-                    {selectedClient.avg_volume_data_mo} <span className="usage-stat-unit">Mo</span>
+                    {(selectedClient.avg_volume_data_mo / 1024).toFixed(2)} <span className="usage-stat-unit">Go</span>
                   </span>
                   <div className="telemetry-progress-wrapper">
                     <div className="progress-bar-bg">
                       <div
                         className="progress-bar-fill red"
-                        style={{ width: `${Math.min(100, (selectedClient.avg_volume_data_mo / 50) * 100)}%` }}
+                        style={{ width: `${Math.min(100, ((selectedClient.avg_volume_data_mo / 1024) / 50) * 100)}%` }}
                       ></div>
                     </div>
                   </div>
@@ -291,13 +327,13 @@ export default function ClientsView() {
                 <div className="usage-stat-box">
                   <span className="usage-stat-label">{t('voiceMinutes')}</span>
                   <span className="usage-stat-value">
-                    {selectedClient.avg_traf_total} <span className="usage-stat-unit">h</span>
+                    {(selectedClient.avg_traf_total / 60).toFixed(2)} <span className="usage-stat-unit">h</span>
                   </span>
                   <div className="telemetry-progress-wrapper">
                     <div className="progress-bar-bg">
                       <div
                         className="progress-bar-fill purple"
-                        style={{ width: `${Math.min(100, (selectedClient.avg_traf_total / 10) * 100)}%` }}
+                        style={{ width: `${Math.min(100, ((selectedClient.avg_traf_total / 60) / 10) * 100)}%` }}
                       ></div>
                     </div>
                   </div>
@@ -307,22 +343,22 @@ export default function ClientsView() {
 
             {/* Revenue & Tenure section */}
             <div>
-              <h4 className="offer-features-title">Revenus & Tenure</h4>
+              <h4 className="offer-features-title">{txt.revenueTenure}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '8px' }}>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenue M1</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{txt.revenueM1}</span>
                   <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.rev_m1} DZD</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenue M2</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{txt.revenueM2}</span>
                   <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.rev_m2} DZD</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Revenue M3</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{txt.revenueM3}</span>
                   <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.rev_m3} DZD</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Tenure</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{txt.tenure}</span>
                   <p style={{ fontWeight: 700, fontSize: '14px' }}>{selectedClient.tenure} mois</p>
                 </div>
               </div>

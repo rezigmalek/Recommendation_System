@@ -13,6 +13,7 @@ import RecommendationResult from './components/recommendations/RecommendationRes
 import Analytics from './components/recommendations/Analytics';
 import Loading from './components/common/Loading';
 import Segmentation from './components/recommendations/Segmentation';
+import Login from './components/login/Login'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,6 +22,7 @@ function App() {
     <AppProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Welcome />} />
             <Route path="/clients" element={<ClientsView />} />

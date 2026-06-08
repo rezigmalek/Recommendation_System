@@ -186,18 +186,6 @@ export default function OffersView() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="filter-group">
-          <select
-            className="filter-select"
-            value={offerTypeFilter}
-            onChange={(e) => setOfferTypeFilter(e.target.value)}
-          >
-            <option value="All">{t('allTypes')}</option>
-            <option value="Postpayé">{lang === 'fr' ? 'Postpayé' : 'Postpaid'}</option>
-            <option value="Hybride">{lang === 'fr' ? 'Hybride' : 'Hybrid'}</option>
-            <option value="Prépayé">{lang === 'fr' ? 'Prépayé' : 'Prepaid'}</option>
-          </select>
-        </div>
       </div>
 
       <div className="offers-grid">
@@ -244,13 +232,6 @@ export default function OffersView() {
                     </span>
                   </div>
                 )}
-                <div className="allowance-item">
-                  <div className="allowance-icon">✉️</div>
-                  <span>
-                    {t('allowanceSms')}
-                    {lang === 'fr' ? offer.sms : offer.sms.replace('Illimité vers Djezzy', 'Unlimited to Djezzy').replace('Sans SMS inclus', 'No SMS included')}
-                  </span>
-                </div>
               </div>
             </div>
 

@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import RecommendationNavbar from './RecommendationNavbar';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
 
-// ─── CDN script loader ────────────────────────────────────────────────────────
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
@@ -16,8 +15,6 @@ function loadScript(src) {
   });
 }
 
-// ─── SVG → PNG base64 (for jsPDF) ────────────────────────────────────────────
-// Handles both webpack-bundled data URLs and regular http(s) URLs correctly
 function svgUrlToPngBase64(svgUrl, width = 320, height = 120) {
   return new Promise((resolve) => {
     const drawOnCanvas = (src) => {
@@ -27,7 +24,6 @@ function svgUrlToPngBase64(svgUrl, width = 320, height = 120) {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        // White background so SVG on transparent renders correctly
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
@@ -37,13 +33,11 @@ function svgUrlToPngBase64(svgUrl, width = 320, height = 120) {
       img.src = src;
     };
 
-    // If already a data URL (webpack inline) → use directly
     if (svgUrl && svgUrl.startsWith('data:')) {
       drawOnCanvas(svgUrl);
       return;
     }
 
-    // Otherwise fetch as blob → object URL → draw
     fetch(svgUrl)
       .then((r) => r.blob())
       .then((blob) => {
@@ -67,7 +61,6 @@ function svgUrlToPngBase64(svgUrl, width = 320, height = 120) {
   });
 }
 
-// ─── Multi-language labels ────────────────────────────────────────────────────
 const localLabels = {
   fr: {
     title: "Analytics & Performance",
@@ -131,35 +124,33 @@ const localLabels = {
   }
 };
 
-// ─── Color palette ────────────────────────────────────────────────────────────
 const PDF_COLORS = {
   red:        [230, 0,   0  ],
   darkRed:    [179, 0,   0  ],
-  navy:       [30,  64,  175],   // section titles
-  teal:       [13,  148, 136],   // accent underlines
+  navy:       [30,  64,  175],
+  teal:       [13,  148, 136],
   black:      [20,  20,  20 ],
   darkGray:   [60,  60,  60 ],
-  tableHead:  [55,  65,  81 ],   // table header fill (dark gray)
+  tableHead:  [55,  65,  81 ],
   midGray:    [110, 110, 110],
   lightGray:  [200, 200, 200],
   veryLight:  [245, 245, 245],
-  footerBg:   [240, 240, 240],   // footer background
-  footerText: [90,  90,  90 ],   // footer text
+  footerBg:   [240, 240, 240],
+  footerText: [90,  90,  90 ],
   white:      [255, 255, 255],
   green:      [34,  197, 94 ],
   amber:      [245, 158, 11 ],
   blue:       [59,  130, 246],
 };
 
-// ─── PDF generation function ──────────────────────────────────────────────────
 async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
   await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const W = 210; // A4 width mm
-  const H = 297; // A4 height mm
+  const W = 210;
+  const H = 297;
   const MARGIN = 18;
   const CONTENT_W = W - MARGIN * 2;
   const isFr = lang === 'fr';
@@ -172,12 +163,8 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
     hour: '2-digit', minute: '2-digit'
   });
 
-  // ── Logo (SVG → PNG) ──────────────────────────────────────────────────────
   const logoPng = await svgUrlToPngBase64(logoSvgUrl, 320, 120);
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // HELPERS
-  // ═══════════════════════════════════════════════════════════════════════════
   const setFont = (style = 'normal', size = 10) => {
     pdf.setFont('helvetica', style);
     pdf.setFontSize(size);
@@ -190,7 +177,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
     const y = H - 7;
     setFill(PDF_COLORS.footerBg);
     pdf.rect(0, H - 12, W, 12, 'F');
-    // thin top border line
     setDraw(PDF_COLORS.lightGray);
     pdf.setLineWidth(0.3);
     pdf.line(0, H - 12, W, H - 12);
@@ -206,32 +192,19 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
     pdf.text(`${pageNum} / ${totalPages}`, W - MARGIN, y, { align: 'right' });
   };
 
-  const hRule = (y, color = PDF_COLORS.lightGray, thickness = 0.3) => {
-    setDraw(color);
-    pdf.setLineWidth(thickness);
-    pdf.line(MARGIN, y, W - MARGIN, y);
-    return y + 3;
-  };
-
-  // ── KPI box helper ────────────────────────────────────────────────────────
   const kpiBox = (x, y, w, h, label, value, sub, accentColor) => {
-    // Card background
     setFill(PDF_COLORS.veryLight);
     setDraw(PDF_COLORS.lightGray);
     pdf.setLineWidth(0.3);
     pdf.roundedRect(x, y, w, h, 2, 2, 'FD');
-    // Accent top bar
     setFill(accentColor);
     pdf.roundedRect(x, y, w, 1.2, 1, 1, 'F');
-    // Label
     setFont('bold', 7);
     setColor(PDF_COLORS.midGray);
     pdf.text(label, x + w / 2, y + 7, { align: 'center' });
-    // Value
     setFont('bold', 14);
     setColor(PDF_COLORS.black);
     pdf.text(String(value), x + w / 2, y + 16, { align: 'center', maxWidth: w - 4 });
-    // Sub
     if (sub) {
       setFont('normal', 7);
       setColor(PDF_COLORS.midGray);
@@ -239,21 +212,14 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════
   // PAGE 1
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  // ── Header band ──────────────────────────────────────────────────────────
   setFill(PDF_COLORS.tableHead);
   pdf.rect(0, 0, W, 42, 'F');
 
-  // ── Logo ─────────────────────────────────────────────────────────────── ─
-
   setFont('bold', 18);
-  setColor(PDF_COLORS.white);     
+  setColor(PDF_COLORS.white);
   pdf.text('DJEZZY', MARGIN, 18);
 
-  // ── Report type badge ─────────────────────────────────────────────────────
   setFill(PDF_COLORS.darkRed);
   pdf.roundedRect(W - MARGIN - 46, 8, 46, 8, 2, 2, 'F');
   setFont('bold', 7);
@@ -261,13 +227,9 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   const badgeText = isFr ? 'RAPPORT ANALYTIQUE' : 'ANALYTICS REPORT';
   pdf.text(badgeText, W - MARGIN - 23, 13.2, { align: 'center' });
 
-  // ── Title ────────────────────────────────────────────────────────────────
   setFont('bold', 16);
   setColor(PDF_COLORS.white);
-  pdf.text(
-    isFr ? 'Analytics & Performance' : 'Analytics & Performance',
-    MARGIN, 27
-  );
+  pdf.text('Analytics & Performance', MARGIN, 27);
   setFont('normal', 8.5);
   setColor([255, 200, 200]);
   pdf.text(
@@ -277,7 +239,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
     MARGIN, 34
   );
 
-  // ── Meta row ─────────────────────────────────────────────────────────────
   setFill(PDF_COLORS.veryLight);
   pdf.rect(0, 42, W, 13, 'F');
   setFont('normal', 8);
@@ -290,9 +251,7 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
 
   let curY = 63;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SECTION 1 — Résumé Exécutif / KPIs
-  // ═══════════════════════════════════════════════════════════════════════════
+  // SECTION 1
   setFont('bold', 12);
   setColor(PDF_COLORS.teal);
   pdf.text(isFr ? '1.  Résumé Exécutif' : '1.  Executive Summary', MARGIN, curY);
@@ -301,30 +260,14 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   pdf.rect(MARGIN, curY, 22, 0.5, 'F');
   curY += 5;
 
-  // 3 KPI boxes
   const boxW = (CONTENT_W - 8) / 3;
   const boxH = 26;
-  kpiBox(MARGIN,               curY, boxW, boxH,
-    isFr ? 'TOTAL CLIENTS' : 'TOTAL CLIENTS',
-    data.total_clients.toLocaleString('fr-FR'), '',
-    PDF_COLORS.blue
-  );
-  kpiBox(MARGIN + boxW + 4,    curY, boxW, boxH,
-    isFr ? 'OFFRE TOP RECOMMANDÉE' : 'TOP RECOMMENDED OFFER',
-    data.top_offer_recommended_name, `ID: ${data.top_offer_recommended_id}`,
-    PDF_COLORS.darkRed
-  );
-  kpiBox(MARGIN + (boxW + 4)*2, curY, boxW, boxH,
-    isFr ? 'TAUX DE CONVERSION ESTIMÉ' : 'ESTIMATED CONVERSION RATE',
-    `${data.conversion_moyenne.toFixed(1)}%`,
-    `Score moy: ${(data.conversion_delta * 100).toFixed(1)}%`,
-    PDF_COLORS.green
-  );
+  kpiBox(MARGIN,                curY, boxW, boxH, isFr ? 'TOTAL CLIENTS' : 'TOTAL CLIENTS', data.total_clients.toLocaleString('fr-FR'), '', PDF_COLORS.blue);
+  kpiBox(MARGIN + boxW + 4,     curY, boxW, boxH, isFr ? 'OFFRE TOP RECOMMANDÉE' : 'TOP RECOMMENDED OFFER', data.top_offer_recommended_name, `ID: ${data.top_offer_recommended_id}`, PDF_COLORS.darkRed);
+  kpiBox(MARGIN + (boxW + 4)*2, curY, boxW, boxH, isFr ? 'TAUX DE CONVERSION ESTIMÉ' : 'ESTIMATED CONVERSION RATE', `${data.conversion_moyenne.toFixed(1)}%`, `Score moy: ${(data.conversion_delta * 100).toFixed(1)}%`, PDF_COLORS.green);
   curY += boxH + 10;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SECTION 2 — Analyse des Mouvements
-  // ═══════════════════════════════════════════════════════════════════════════
+  // SECTION 2
   setFont('bold', 12);
   setColor(PDF_COLORS.teal);
   pdf.text(isFr ? '2.  Analyse des Mouvements' : '2.  Movement Analysis', MARGIN, curY);
@@ -333,7 +276,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   pdf.rect(MARGIN, curY, 30, 0.5, 'F');
   curY += 6;
 
-  // Intro text
   setFont('normal', 8.5);
   setColor(PDF_COLORS.darkGray);
   pdf.text(
@@ -344,38 +286,41 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   );
   curY += 7;
 
-  // ── Stacked bar ──────────────────────────────────────────────────────────
+  // ── Stacked bar PDF — FIX : ne dessiner que si > 0 ──
   const barH = 9;
   const barW = CONTENT_W;
   const upW  = barW * (data.upsell_pourcentage / 100);
   const stW  = barW * (data.stable_pourcentage / 100);
   const dnW  = barW * (data.downsell_pourcentage / 100);
 
-  // Upsell
-  setFill(PDF_COLORS.green);
-  pdf.roundedRect(MARGIN, curY, upW, barH, 1.5, 1.5, 'F');
-  // Stable
-  setFill([148, 163, 184]);
-  pdf.rect(MARGIN + upW, curY, stW, barH, 'F');
-  // Downsell
-  setFill(PDF_COLORS.darkRed);
-  pdf.roundedRect(MARGIN + upW + stW, curY, dnW, barH, 1.5, 1.5, 'F');
+  if (upW > 0) {
+    setFill(PDF_COLORS.green);
+    pdf.roundedRect(MARGIN, curY, upW, barH, 1.5, 1.5, 'F');
+  }
+  if (stW > 0) {
+    setFill([148, 163, 184]);
+    pdf.rect(MARGIN + upW, curY, stW, barH, 'F');
+  }
+  if (dnW > 0) {
+    setFill(PDF_COLORS.darkRed);
+    pdf.roundedRect(MARGIN + upW + stW, curY, dnW, barH, 1.5, 1.5, 'F');
+  }
 
-  // Bar labels (inside if wide enough)
   setFont('bold', 7);
   setColor(PDF_COLORS.white);
-  if (upW > 12) pdf.text(`${data.upsell_pourcentage.toFixed(1)}%`, MARGIN + upW / 2, curY + 5.8, { align: 'center' });
-  if (stW > 12) pdf.text(`${data.stable_pourcentage.toFixed(1)}%`, MARGIN + upW + stW / 2, curY + 5.8, { align: 'center' });
-  if (dnW > 12) pdf.text(`${data.downsell_pourcentage.toFixed(1)}%`, MARGIN + upW + stW + dnW / 2, curY + 5.8, { align: 'center' });
+  if (upW > 12) pdf.text(`${data.upsell_pourcentage.toFixed(1)}%`,   MARGIN + upW / 2,               curY + 5.8, { align: 'center' });
+  if (stW > 12) pdf.text(`${data.stable_pourcentage.toFixed(1)}%`,   MARGIN + upW + stW / 2,         curY + 5.8, { align: 'center' });
+  if (dnW > 12) pdf.text(`${data.downsell_pourcentage.toFixed(1)}%`, MARGIN + upW + stW + dnW / 2,   curY + 5.8, { align: 'center' });
   curY += barH + 4;
 
-  // Legend row
+  // ── Legend PDF — FIX : ne montrer que si > 0 ──
   const legendItems = [
-    { color: PDF_COLORS.green,    label: isFr ? 'Upsell'   : 'Upsell',   pct: data.upsell_pourcentage },
-    { color: [148, 163, 184],     label: isFr ? 'Stable'   : 'Stable',   pct: data.stable_pourcentage },
-    { color: PDF_COLORS.darkRed,      label: isFr ? 'Downsell' : 'Downsell', pct: data.downsell_pourcentage },
-  ];
-  const legW = CONTENT_W / 3;
+    { color: PDF_COLORS.green,   label: 'Upsell',   pct: data.upsell_pourcentage },
+    { color: [148, 163, 184],    label: 'Stable',   pct: data.stable_pourcentage },
+    { color: PDF_COLORS.darkRed, label: 'Downsell', pct: data.downsell_pourcentage },
+  ].filter(item => item.pct > 0);
+
+  const legW = CONTENT_W / legendItems.length;
   legendItems.forEach((item, i) => {
     const lx = MARGIN + i * legW;
     setFill(item.color);
@@ -389,7 +334,38 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   });
   curY += 9;
 
-  // ── Movement table ────────────────────────────────────────────────────────
+  // ── Movement table PDF — FIX : ne montrer que les lignes > 0 ──
+  const movementRows = [
+    [
+      { content: 'UPSELL',   styles: { textColor: [22, 163, 74],  fontStyle: 'bold' } },
+      `${data.upsell_pourcentage.toFixed(2)}%`,
+      Math.round(data.total_clients * data.upsell_pourcentage / 100).toLocaleString('fr-FR'),
+      isFr ? 'Augmentation de la valeur contractuelle' : 'Increase in contractual value',
+    ],
+    [
+      { content: 'STABLE',   styles: { textColor: [100, 116, 139], fontStyle: 'bold' } },
+      `${data.stable_pourcentage.toFixed(2)}%`,
+      Math.round(data.total_clients * data.stable_pourcentage / 100).toLocaleString('fr-FR'),
+      isFr ? "Maintien de l'offre actuelle" : 'Maintaining current offer',
+    ],
+    [
+      { content: 'DOWNSELL', styles: { textColor: [220, 38, 38],  fontStyle: 'bold' } },
+      `${data.downsell_pourcentage.toFixed(2)}%`,
+      Math.round(data.total_clients * data.downsell_pourcentage / 100).toLocaleString('fr-FR'),
+      isFr ? 'Migration vers une offre inférieure' : 'Migration to a lower tier offer',
+    ],
+  ].filter((_, idx) => {
+    const pcts = [data.upsell_pourcentage, data.stable_pourcentage, data.downsell_pourcentage];
+    return pcts[idx] > 0;
+  });
+
+  movementRows.push([
+    { content: isFr ? 'TOTAL' : 'TOTAL', styles: { fontStyle: 'bold' } },
+    { content: '100.00%', styles: { fontStyle: 'bold' } },
+    { content: data.total_clients.toLocaleString('fr-FR'), styles: { fontStyle: 'bold' } },
+    '',
+  ]);
+
   pdf.autoTable({
     startY: curY,
     margin: { left: MARGIN, right: MARGIN },
@@ -399,57 +375,16 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
       isFr ? 'Clients Estimés' : 'Estimated Clients',
       isFr ? 'Description' : 'Description',
     ]],
-    body: [
-      [
-        { content: 'UPSELL', styles: { textColor: [22, 163, 74], fontStyle: 'bold' } },
-        `${data.upsell_pourcentage.toFixed(2)}%`,
-        Math.round(data.total_clients * data.upsell_pourcentage / 100).toLocaleString('fr-FR'),
-        isFr ? 'Augmentation de la valeur contractuelle' : 'Increase in contractual value',
-      ],
-      [
-        { content: 'STABLE', styles: { textColor: [100, 116, 139], fontStyle: 'bold' } },
-        `${data.stable_pourcentage.toFixed(2)}%`,
-        Math.round(data.total_clients * data.stable_pourcentage / 100).toLocaleString('fr-FR'),
-        isFr ? "Maintien de l'offre actuelle" : 'Maintaining current offer',
-      ],
-      [
-        { content: 'DOWNSELL', styles: { textColor: [220, 38, 38], fontStyle: 'bold' } },
-        `${data.downsell_pourcentage.toFixed(2)}%`,
-        Math.round(data.total_clients * data.downsell_pourcentage / 100).toLocaleString('fr-FR'),
-        isFr ? 'Migration vers une offre inférieure' : 'Migration to a lower tier offer',
-      ],
-      [
-        { content: isFr ? 'TOTAL' : 'TOTAL', styles: { fontStyle: 'bold' } },
-        { content: '100.00%', styles: { fontStyle: 'bold' } },
-        { content: data.total_clients.toLocaleString('fr-FR'), styles: { fontStyle: 'bold' } },
-        '',
-      ],
-    ],
-    styles: {
-      fontSize: 8.5,
-      cellPadding: 3,
-      lineColor: PDF_COLORS.lightGray,
-      lineWidth: 0.2,
-    },
-    headStyles: {
-      fillColor: PDF_COLORS.tableHead,
-      textColor: PDF_COLORS.white,
-      fontStyle: 'bold',
-      fontSize: 8.5,
-    },
+    body: movementRows,
+    styles: { fontSize: 8.5, cellPadding: 3, lineColor: PDF_COLORS.lightGray, lineWidth: 0.2 },
+    headStyles: { fillColor: PDF_COLORS.tableHead, textColor: PDF_COLORS.white, fontStyle: 'bold', fontSize: 8.5 },
     alternateRowStyles: { fillColor: PDF_COLORS.veryLight },
     rowPageBreak: 'avoid',
   });
   curY = pdf.lastAutoTable.finalY + 10;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SECTION 3 — Performance d'Usage
-  // ═══════════════════════════════════════════════════════════════════════════
-  if (curY > H - 90) {
-    addFooter(1, 2);
-    pdf.addPage();
-    curY = 20;
-  }
+  // SECTION 3
+  if (curY > H - 90) { addFooter(1, 2); pdf.addPage(); curY = 20; }
 
   setFont('bold', 12);
   setColor(PDF_COLORS.teal);
@@ -462,52 +397,20 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   pdf.autoTable({
     startY: curY,
     margin: { left: MARGIN, right: MARGIN },
-    head: [[
-      isFr ? 'Métrique' : 'Metric',
-      isFr ? 'Catégorie' : 'Category',
-      isFr ? 'Valeur Mesurée' : 'Measured Value',
-    ]],
+    head: [[isFr ? 'Métrique' : 'Metric', isFr ? 'Catégorie' : 'Category', isFr ? 'Valeur Mesurée' : 'Measured Value']],
     body: [
-      [
-        isFr ? 'Consommation Data Moyenne' : 'Avg. Data Consumption',
-        'MOBILE DATA',
-        `${data.data_avg_gb} GB`,
-      ],
-      [
-        isFr ? 'Consommation Voix Moyenne' : 'Avg. Voice Consumption',
-        isFr ? 'VOIX' : 'VOICE',
-        `${data.voice_avg_min} min`,
-      ],
-      [
-        isFr ? 'ARPU Moyen' : 'Average ARPU',
-        'REVENUE',
-        `${data.arpu_shift.toFixed(2)} DZD`,
-      ],
+      [isFr ? 'Consommation Data Moyenne' : 'Avg. Data Consumption', 'MOBILE DATA', `${data.data_avg_gb} GB`],
+      [isFr ? 'Consommation Voix Moyenne' : 'Avg. Voice Consumption', isFr ? 'VOIX' : 'VOICE', `${data.voice_avg_min} min`],
+      [isFr ? 'ARPU Moyen' : 'Average ARPU', 'REVENUE', `${data.arpu_shift.toFixed(2)} DZD`],
     ],
-    styles: {
-      fontSize: 8.5,
-      cellPadding: 3,
-      lineColor: PDF_COLORS.lightGray,
-      lineWidth: 0.2,
-    },
-    headStyles: {
-      fillColor: PDF_COLORS.tableHead,
-      textColor: PDF_COLORS.white,
-      fontStyle: 'bold',
-      fontSize: 8.5,
-    },
+    styles: { fontSize: 8.5, cellPadding: 3, lineColor: PDF_COLORS.lightGray, lineWidth: 0.2 },
+    headStyles: { fillColor: PDF_COLORS.tableHead, textColor: PDF_COLORS.white, fontStyle: 'bold', fontSize: 8.5 },
     alternateRowStyles: { fillColor: PDF_COLORS.veryLight },
   });
   curY = pdf.lastAutoTable.finalY + 10;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SECTION 4 — Score & Conversion
-  // ═══════════════════════════════════════════════════════════════════════════
-  if (curY > H - 60) {
-    addFooter(1, 2);
-    pdf.addPage();
-    curY = 20;
-  }
+  // SECTION 4
+  if (curY > H - 60) { addFooter(1, 2); pdf.addPage(); curY = 20; }
 
   setFont('bold', 12);
   setColor(PDF_COLORS.teal);
@@ -520,61 +423,33 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   pdf.autoTable({
     startY: curY,
     margin: { left: MARGIN, right: MARGIN },
-    head: [[
-      isFr ? 'Indicateur' : 'Indicator',
-      isFr ? 'Valeur' : 'Value',
-      isFr ? 'Interprétation' : 'Interpretation',
-    ]],
+    head: [[isFr ? 'Indicateur' : 'Indicator', isFr ? 'Valeur' : 'Value', isFr ? 'Interprétation' : 'Interpretation']],
     body: [
       [
         isFr ? 'Score de Recommandation Moyen' : 'Average Recommendation Score',
         `${(data.conversion_delta * 100).toFixed(1)}%`,
-        isFr
-          ? "Score agrégé sur l'ensemble des recommandations du batch"
-          : 'Aggregated score across all recommendations in the batch',
+        isFr ? "Score agrégé sur l'ensemble des recommandations du batch" : 'Aggregated score across all recommendations in the batch',
       ],
       [
         isFr ? 'Taux de Conversion Estimé' : 'Estimated Conversion Rate',
         `${data.conversion_moyenne.toFixed(2)}%`,
-        isFr
-          ? "Proportion estimée de clients susceptibles d'adopter l'offre recommandée"
-          : 'Estimated proportion of clients likely to adopt the recommended offer',
+        isFr ? "Proportion estimée de clients susceptibles d'adopter l'offre recommandée" : 'Estimated proportion of clients likely to adopt the recommended offer',
       ],
       [
         isFr ? 'Offre la plus Recommandée' : 'Most Recommended Offer',
         data.top_offer_recommended_name,
-        isFr
-          ? `Offre dominante dans ce batch (réf. ${data.top_offer_recommended_id})`
-          : `Dominant offer in this batch (ref. ${data.top_offer_recommended_id})`,
+        isFr ? `Offre dominante dans ce batch (réf. ${data.top_offer_recommended_id})` : `Dominant offer in this batch (ref. ${data.top_offer_recommended_id})`,
       ],
     ],
-    styles: {
-      fontSize: 8.5,
-      cellPadding: 3,
-      lineColor: PDF_COLORS.lightGray,
-      lineWidth: 0.2,
-    },
-    headStyles: {
-      fillColor: PDF_COLORS.tableHead,
-      textColor: PDF_COLORS.white,
-      fontStyle: 'bold',
-      fontSize: 8.5,
-    },
+    styles: { fontSize: 8.5, cellPadding: 3, lineColor: PDF_COLORS.lightGray, lineWidth: 0.2 },
+    headStyles: { fillColor: PDF_COLORS.tableHead, textColor: PDF_COLORS.white, fontStyle: 'bold', fontSize: 8.5 },
     alternateRowStyles: { fillColor: PDF_COLORS.veryLight },
-    columnStyles: {
-      2: { cellWidth: 85 },
-    },
+    columnStyles: { 2: { cellWidth: 85 } },
   });
   curY = pdf.lastAutoTable.finalY + 12;
 
-  // ═══════════════════════════════════════════════════════════════════════════
   // Closing note
-  // ═══════════════════════════════════════════════════════════════════════════
-  if (curY > H - 36) {
-    addFooter(1, 2);
-    pdf.addPage();
-    curY = 20;
-  }
+  if (curY > H - 36) { addFooter(1, 2); pdf.addPage(); curY = 20; }
 
   setFill(PDF_COLORS.veryLight);
   setDraw(PDF_COLORS.lightGray);
@@ -584,17 +459,14 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   pdf.roundedRect(MARGIN, curY, 2, 20, 1, 1, 'F');
   setFont('bold', 8);
   setColor(PDF_COLORS.darkGray);
-  const noteTitle = isFr ? 'Note de confidentialité' : 'Confidentiality notice';
-  pdf.text(noteTitle, MARGIN + 6, curY + 7);
+  pdf.text(isFr ? 'Note de confidentialité' : 'Confidentiality notice', MARGIN + 6, curY + 7);
   setFont('normal', 7.5);
   setColor(PDF_COLORS.midGray);
   const noteText = isFr
     ? 'Ce document est généré automatiquement par la plateforme Djezzy AI Recommendation. Il est destiné exclusivement à usage interne.'
     : 'This document is automatically generated by the Djezzy AI Recommendation Platform. It is intended exclusively for internal use.';
-  const noteLines = pdf.splitTextToSize(noteText, CONTENT_W - 10);
-  pdf.text(noteLines, MARGIN + 6, curY + 13);
+  pdf.text(pdf.splitTextToSize(noteText, CONTENT_W - 10), MARGIN + 6, curY + 13);
 
-  // ── Footers on all pages ──────────────────────────────────────────────────
   const totalPages = pdf.getNumberOfPages();
   for (let p = 1; p <= totalPages; p++) {
     pdf.setPage(p);
@@ -604,7 +476,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   pdf.save(`djezzy-rapport-analytique-batch-${data.id_recommandation}.pdf`);
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
 export default function Analytics({ analyticsData, batchRef }) {
   const { lang } = useAppContext();
   const t = (key) => localLabels[lang]?.[key] || key;
@@ -615,7 +486,6 @@ export default function Analytics({ analyticsData, batchRef }) {
   const [error,     setError]     = useState(null);
   const [exporting, setExporting] = useState(false);
 
-  // ── Fetch ──────────────────────────────────────────────────────────────────
   const fetchAnalytics = async () => {
     setLoading(true);
     setError(null);
@@ -656,7 +526,6 @@ export default function Analytics({ analyticsData, batchRef }) {
 
   useEffect(() => { fetchAnalytics(); }, [id]);
 
-  // ── Export handler ─────────────────────────────────────────────────────────
   const handleExportPdf = async () => {
     if (!data || exporting) return;
     setExporting(true);
@@ -672,7 +541,6 @@ export default function Analytics({ analyticsData, batchRef }) {
   const data = apiData || analyticsData || null;
   const batchNumber = batchRef || data?.id_recommandation;
 
-  // ── Loading / error / empty states ────────────────────────────────────────
   const renderBody = () => {
     if (loading) {
       return (
@@ -701,9 +569,40 @@ export default function Analytics({ analyticsData, batchRef }) {
       );
     }
 
+    // ── FIX : construire uniquement les pills dont la valeur est > 0 ──
+    const movementPills = [
+      {
+        key: 'up',
+        show: data.upsell_pourcentage > 0,
+        dotClass: 'green',
+        pct: data.upsell_pourcentage,
+        label: t('upsell'),
+        desc: t('upsellDesc'),
+        pillClass: 'up',
+      },
+      {
+        key: 'st',
+        show: data.stable_pourcentage > 0,
+        dotClass: 'gray',
+        pct: data.stable_pourcentage,
+        label: t('stable'),
+        desc: t('stableDesc'),
+        pillClass: 'st',
+      },
+      {
+        key: 'dn',
+        show: data.downsell_pourcentage > 0,
+        dotClass: 'red',
+        pct: data.downsell_pourcentage,
+        label: t('downsell'),
+        desc: t('downsellDesc'),
+        pillClass: 'dn',
+      },
+    ].filter(p => p.show);
+
     return (
       <div className="an-wrapper">
-        {/* ── Row 1: KPIs ── */}
+        {/* KPIs */}
         <div className="an-kpi-row">
           <div className="an-kpi-card">
             <div className="an-kpi-top"><div className="an-kpi-icon blue">👥</div></div>
@@ -725,7 +624,7 @@ export default function Analytics({ analyticsData, batchRef }) {
           </div>
         </div>
 
-        {/* ── Row 2: Movement + Usage ── */}
+        {/* Movement + Usage */}
         <div className="an-bottom-row">
           <div className="an-movement-card">
             <div>
@@ -735,36 +634,26 @@ export default function Analytics({ analyticsData, batchRef }) {
               </div>
               <p className="an-movement-sub">{t('clientProgression')}</p>
             </div>
+
+            {/* ── Stacked bar React — FIX : ne render que si > 0 ── */}
             <div className="an-seg-bar">
-              <div className="an-seg-up" style={{ width: `${data.upsell_pourcentage}%` }}>{t('upsell')}</div>
-              <div className="an-seg-st" style={{ width: `${data.stable_pourcentage}%` }}>{t('stable')}</div>
-              <div className="an-seg-dn" style={{ width: `${data.downsell_pourcentage}%` }}>{t('downsell')}</div>
+              {data.upsell_pourcentage   > 0 && <div className="an-seg-up" style={{ width: `${data.upsell_pourcentage}%`   }}>{t('upsell')}</div>}
+              {data.stable_pourcentage   > 0 && <div className="an-seg-st" style={{ width: `${data.stable_pourcentage}%`   }}>{t('stable')}</div>}
+              {data.downsell_pourcentage > 0 && <div className="an-seg-dn" style={{ width: `${data.downsell_pourcentage}%` }}>{t('downsell')}</div>}
             </div>
+
+            {/* ── Pills React — FIX : ne render que si > 0 ── */}
             <div className="an-pills-grid">
-              <div className="an-pill up">
-                <div className="an-pill-dot-row">
-                  <span className="an-pill-dot green" />
-                  <span className="an-pill-pct">{data.upsell_pourcentage.toFixed(2)}%</span>
+              {movementPills.map(p => (
+                <div key={p.key} className={`an-pill ${p.pillClass}`}>
+                  <div className="an-pill-dot-row">
+                    <span className={`an-pill-dot ${p.dotClass}`} />
+                    <span className="an-pill-pct">{p.pct.toFixed(2)}%</span>
+                  </div>
+                  <div className="an-pill-lbl">{p.label}</div>
+                  <div className="an-pill-desc">{p.desc}</div>
                 </div>
-                <div className="an-pill-lbl">{t('upsell')}</div>
-                <div className="an-pill-desc">{t('upsellDesc')}</div>
-              </div>
-              <div className="an-pill st">
-                <div className="an-pill-dot-row">
-                  <span className="an-pill-dot gray" />
-                  <span className="an-pill-pct">{data.stable_pourcentage.toFixed(2)}%</span>
-                </div>
-                <div className="an-pill-lbl">{t('stable')}</div>
-                <div className="an-pill-desc">{t('stableDesc')}</div>
-              </div>
-              <div className="an-pill dn">
-                <div className="an-pill-dot-row">
-                  <span className="an-pill-dot red" />
-                  <span className="an-pill-pct">{data.downsell_pourcentage.toFixed(2)}%</span>
-                </div>
-                <div className="an-pill-lbl">{t('downsell')}</div>
-                <div className="an-pill-desc">{t('downsellDesc')}</div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -811,7 +700,6 @@ export default function Analytics({ analyticsData, batchRef }) {
     );
   };
 
-  // ── Scoped styles ──────────────────────────────────────────────────────────
   const styles = `
     .an-state-box {
       display: flex; flex-direction: column; align-items: center;
@@ -835,15 +723,11 @@ export default function Analytics({ analyticsData, batchRef }) {
       border-radius: 50%; animation: an-spin .7s linear infinite;
     }
     @keyframes an-spin { to { transform: rotate(360deg); } }
-
-    /* ── Title row ── */
     .an-title-row {
       display: flex; align-items: center; justify-content: space-between;
       gap: 12px; margin-bottom: 8px; flex-wrap: wrap;
     }
     .an-title-left { display: flex; align-items: center; gap: 12px; }
-
-    /* ── PDF button ── */
     .an-pdf-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 9px 20px; border-radius: 10px; border: none;
@@ -877,7 +761,6 @@ export default function Analytics({ analyticsData, batchRef }) {
       <style>{styles}</style>
       <RecommendationNavbar />
 
-      {/* ── Title + Export Button ── */}
       <div className="an-title-row">
         <div className="an-title-left">
           <span className="wizard-icon"></span>
@@ -888,7 +771,7 @@ export default function Analytics({ analyticsData, batchRef }) {
         </div>
 
         {!loading && !error && data && (
-          <button className="an-pdf-btn" onClick={handleExportPdf} disabled={exporting} title="Exporter en PDF professionnel">
+          <button className="an-pdf-btn" onClick={handleExportPdf} disabled={exporting}>
             {exporting ? (
               <>
                 <span className="an-pdf-spinner" />
@@ -896,7 +779,6 @@ export default function Analytics({ analyticsData, batchRef }) {
               </>
             ) : (
               <>
-                {/* PDF icon */}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>

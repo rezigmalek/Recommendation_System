@@ -64,12 +64,12 @@ public class ClientKafkaConsumer {
             client.setClientPastOfferName(dto.getClientPastOfferName());
             client.setClientPastOfferPrice(dto.getClientPastOfferPrice());
             client.setClientPastOfferReference(dto.getClientPastOfferReference());
-            client.setFlag_activity(dto.getFlagActivity());
+            client.setFlag_activity(Integer.parseInt(dto.getFlagActivity()));
 
             if (dto.getTenure() != null) {
                 client.setTenure(dto.getTenure().intValue());
             }
-
+            client.setTenure_segment(dto.getTenure_segment());
             client.setAvg_traf_out_voice_onnet(dto.getAvgTrafOutVoiceOnnet());
             client.setAvg_traf_out_voice_offnet(dto.getAvgTrafOutVoiceOffnet());
             client.setAvg_traf_out_voice_inter(dto.getAvgTrafOutVoiceInter());

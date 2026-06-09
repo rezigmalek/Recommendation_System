@@ -136,7 +136,11 @@ export default function ClientsView() {
   };
 
   const getActivityBadgeClass = (activity) => {
-    return activity === 'Active' ? 'green' : 'red';
+    return activity === 1 ? 'green' : 'red';
+  };
+
+  const getActivityLabel = (flag) => {
+    return flag === 1 ? (lang === 'fr' ? 'Actif' : 'Active') : (lang === 'fr' ? 'Inactif' : 'Inactive');
   };
 
   // Loading state
@@ -206,7 +210,7 @@ export default function ClientsView() {
           >
             <option value="All">{txt.allActivities}</option>
             {uniqueActivities.map(act => (
-              <option key={act} value={act}>{act}</option>
+              <option key={act} value={act}>{getActivityLabel(act)}</option>
             ))}
           </select>
         </div>
@@ -250,7 +254,7 @@ export default function ClientsView() {
                     </td>
                     <td>
                       <span className={`badge ${getActivityBadgeClass(client.flag_activity)}`}>
-                        {client.flag_activity}
+                        {getActivityLabel(client.flag_activity)}
                       </span>
                     </td>
                     <td>

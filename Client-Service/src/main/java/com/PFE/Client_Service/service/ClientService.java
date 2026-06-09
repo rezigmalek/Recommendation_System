@@ -164,7 +164,8 @@ public class ClientService {
 
             client.setClientReference((int) row.getCell(0).getNumericCellValue());
             client.setFull_name(row.getCell(1).getStringCellValue());
-            client.setFlag_activity(row.getCell(2).getStringCellValue());
+            // flag_activity is stored as an integer in the Client entity
+            client.setFlag_activity((int) row.getCell(2).getNumericCellValue());
             client.setTenure(Integer.valueOf((int) row.getCell(3).getNumericCellValue()));
 
             client.setAvg_traf_out_voice_onnet(row.getCell(4).getNumericCellValue());

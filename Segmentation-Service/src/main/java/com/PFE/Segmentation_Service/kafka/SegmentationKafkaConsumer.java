@@ -43,7 +43,6 @@ public class SegmentationKafkaConsumer {
         // =================================================
         // GROUPER LES CLIENTS PAR OFFRE TOP1
         // =================================================
-        // Structure : Map<OfferReference, List<ClientRecommendationDTO>>
         Map<Integer, List<ClientRecommendationDTO>> clientsByOffer = new HashMap<>();
 
         for (ClientRecommendationDTO cr : clients) {
@@ -66,56 +65,49 @@ public class SegmentationKafkaConsumer {
             Integer offerRef = entry.getKey();
             List<ClientRecommendationDTO> offerClients = entry.getValue();
 
-            // Nom de l'offre depuis le top1 du premier client
             String offerName = offerClients.get(0)
                     .getRecommendedOffers().get(0).getOfferName();
 
             // ── Minimum AVG Traf Data ──────────────────────────
-            // Minimum de avgVolumeDataMo parmi tous les clients de cette offre
             double minAvgTrafData = offerClients.stream()
                     .filter(cr -> cr.getClient().getAvgVolumeDataMo() != null)
                     .mapToDouble(cr -> cr.getClient().getAvgVolumeDataMo())
                     .min().orElse(0.0);
 
             // ── Minimum AVG Traf Voice ─────────────────────────
-            // Minimum de avgTrafTotal parmi tous les clients de cette offre
             double minAvgTrafVoice = offerClients.stream()
                     .filter(cr -> cr.getClient().getAvgTrafTotal() != null)
                     .mapToDouble(cr -> cr.getClient().getAvgTrafTotal())
                     .min().orElse(0.0);
 
             // ── Minimum AVG Revenue ────────────────────────────
-            // Minimum de avgRealRev parmi tous les clients de cette offre
             double minAvgRevenue = offerClients.stream()
                     .filter(cr -> cr.getClient().getAvgRealRev() != null)
                     .mapToDouble(cr -> cr.getClient().getAvgRealRev())
                     .min().orElse(0.0);
 
             // ── Value Client majoritaire ───────────────────────
-            // Low / Medium / High → prendre la valeur la plus fréquente
             String dominantValueClient = getMostFrequent(
                     offerClients.stream()
                             .map(cr -> cr.getClient().getValueSegment())
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList()));
 
-            // ── Activity majoritaire ───────────────────────────
-            // Active / Inactive → prendre la valeur la plus fréquente
-            String dominantActivity = getMostFrequent(
-                    offerClients.stream()
-                            .map(cr -> cr.getClient().getFlagActivity())
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList()));
-
-            // ── Activity Percentage ────────────────────────────
-            // Pourcentage des clients ayant l'activité dominante
-            long dominantActivityCount = offerClients.stream()
-                    .map(cr -> cr.getClient().getFlagActivity())
-                    .filter(Objects::nonNull)
-                    .filter(a -> a.equals(dominantActivity))
+            // ── Compter actifs (1) et inactifs (0) ────────────
+            long activeCount = offerClients.stream()
+                    .filter(cr -> cr.getClient().getFlagActivity() == 1)
                     .count();
 
-            double activityPercentage = ((double) dominantActivityCount / offerClients.size()) * 100;
+            long inactiveCount = offerClients.stream()
+                    .filter(cr -> cr.getClient().getFlagActivity() == 0)
+                    .count();
+
+            // ── Activity dominante : "Active" ou "Inactive" ───
+            String dominantActivity = activeCount >= inactiveCount ? "Active" : "Inactive";
+
+            // ── Activity Percentage (% de la dominante) ───────
+            long dominantCount = activeCount >= inactiveCount ? activeCount : inactiveCount;
+            double activityPercentage = ((double) dominantCount / offerClients.size()) * 100;
 
             // ── Sauvegarder ────────────────────────────────────
             Segmentation segmentation = new Segmentation();
@@ -132,8 +124,8 @@ public class SegmentationKafkaConsumer {
 
             segmentationRepository.save(segmentation);
 
-            log.info("Segmentation saved [offer={} | clients={} | value={} | activity={}]",
-                    offerName, offerClients.size(), dominantValueClient, dominantActivity);
+            log.info("Segmentation saved [offer={} | clients={} | active={} | inactive={} | activity={}]",
+                    offerName, offerClients.size(), activeCount, inactiveCount, dominantActivity);
         }
     }
 

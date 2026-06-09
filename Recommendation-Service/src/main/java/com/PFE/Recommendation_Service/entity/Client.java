@@ -10,7 +10,7 @@ public class Client {
     private String clientPastOfferName;
     private Double clientPastOfferPrice;
 
-    private String flagActivity;
+    private int flagActivity;
     private String valueSegment;
     private Double pasivityO;
     private Double avgRealRev;
@@ -101,15 +101,8 @@ public class Client {
     private Double revM5;
     private Double revM6;
 
-    private Double top1Usage;
-    private Double top2Usage;
-    private Double top3Usage;
-
-    private Double top1Revenue;
-    private Double top2Revenue;
-    private Double top3Revenue;
-
     private Double tenure;
+    private String tenure_segment;
 
     // ================= GETTERS & SETTERS =================
 
@@ -161,11 +154,11 @@ public class Client {
         this.clientPastOfferPrice = clientPastOfferPrice;
     }
 
-    public String getFlagActivity() {
+    public int getFlagActivity() {
         return flagActivity;
     }
 
-    public void setFlagActivity(String flagActivity) {
+    public void setFlagActivity(int flagActivity) {
         this.flagActivity = flagActivity;
     }
 
@@ -753,59 +746,19 @@ public class Client {
         this.revM6 = revM6;
     }
 
-    public Double getTop1Usage() {
-        return top1Usage;
-    }
-
-    public void setTop1Usage(Double top1Usage) {
-        this.top1Usage = top1Usage;
-    }
-
-    public Double getTop2Usage() {
-        return top2Usage;
-    }
-
-    public void setTop2Usage(Double top2Usage) {
-        this.top2Usage = top2Usage;
-    }
-
-    public Double getTop3Usage() {
-        return top3Usage;
-    }
-
-    public void setTop3Usage(Double top3Usage) {
-        this.top3Usage = top3Usage;
-    }
-
-    public Double getTop1Revenue() {
-        return top1Revenue;
-    }
-
-    public void setTop1Revenue(Double top1Revenue) {
-        this.top1Revenue = top1Revenue;
-    }
-
-    public Double getTop2Revenue() {
-        return top2Revenue;
-    }
-
-    public void setTop2Revenue(Double top2Revenue) {
-        this.top2Revenue = top2Revenue;
-    }
-
-    public Double getTop3Revenue() {
-        return top3Revenue;
-    }
-
-    public void setTop3Revenue(Double top3Revenue) {
-        this.top3Revenue = top3Revenue;
-    }
-
     public Double getTenure() {
         return tenure;
     }
 
     public void setTenure(Double tenure) {
         this.tenure = tenure;
+    }
+
+    public String getTenure_segment() {
+        return tenure_segment;
+    }
+
+    public void setTenure_segment(String tenure_segment) {
+        this.tenure_segment = tenure_segment;
     }
 }

@@ -11,6 +11,7 @@ public class ClientDTO {
     private Double avgRealRev;
     private Double potentialMaxRev;
     private Double tenure;
+    private String tenure_segment;
     private Double pasivityO;
     private String clientPastOfferName;
     private Double clientPastOfferPrice;
@@ -48,6 +49,8 @@ public class ClientDTO {
     public void setPotentialMaxRev(Double v)        { this.potentialMaxRev = v; }
     public Double getTenure()                       { return tenure; }
     public void setTenure(Double v)                 { this.tenure = v; }
+    public String getTenure_segment()               { return tenure_segment; }
+    public void setTenure_segment(String tenure_segment) {this.tenure_segment = tenure_segment; }
     public Double getPasivityO()                    { return pasivityO; }
     public void setPasivityO(Double v)              { this.pasivityO = v; }
     public String getClientPastOfferName()          { return clientPastOfferName; }

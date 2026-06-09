@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const {
@@ -8,10 +9,32 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onTouched' });
 
+  const users = [
+    {
+      username: "admin",
+      password: "admin123",
+    },
+    {
+      username: "malek",
+      password: "123456",
+    },
+    {
+      username: "test",
+      password: "password",
+    },
+  ];
+
+  const navigate = useNavigate();
   const onSubmit = async (data) => {
-    await new Promise((r) => setTimeout(r, 1400));
-    console.log('Connexion :', data);
-    // → Remplacer par votre appel API réel
+    const user = users.find(
+      (u) => u.username === data.username && u.password === data.password
+    );
+    if (user) {
+      localStorage.setItem("isAuthenticated", "true");
+      navigate('/welcome');
+    } else {
+      setError("Nom d'utilisateur ou mot de passe incorrect");
+    }
   };
 
   return (
@@ -109,8 +132,8 @@ export default function Login() {
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff8080', fontSize: '0.73rem', fontWeight: 500 }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
                 {errors.username.message}
               </span>
@@ -155,19 +178,15 @@ export default function Login() {
               }}
               {...register('password', {
                 required: 'Le mot de passe est obligatoire',
-                minLength: { value: 8, message: 'Minimum 8 caractères' },
-                pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                  message: 'Doit contenir majuscule, minuscule et chiffre',
-                },
+                minLength: { value: 3, message: 'Minimum 3 caractères' },
               })}
             />
             {errors.password && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ff8080', fontSize: '0.73rem', fontWeight: 500 }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
                 {errors.password.message}
               </span>
@@ -198,7 +217,7 @@ export default function Login() {
               boxShadow: '0 4px 20px rgba(227,6,19,0.42)',
               transition: 'box-shadow 0.2s, transform 0.15s',
             }}
-            onMouseEnter={e => { if (!isSubmitting) { e.currentTarget.style.boxShadow = '0 6px 28px rgba(227,6,19,0.6)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}}
+            onMouseEnter={e => { if (!isSubmitting) { e.currentTarget.style.boxShadow = '0 6px 28px rgba(227,6,19,0.6)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
             onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(227,6,19,0.42)'; e.currentTarget.style.transform = 'translateY(0)'; }}
           >
             {isSubmitting ? (
@@ -214,8 +233,8 @@ export default function Login() {
                 Se connecter
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
                 </svg>
               </>
             )}

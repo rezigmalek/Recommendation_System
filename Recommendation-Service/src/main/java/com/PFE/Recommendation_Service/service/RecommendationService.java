@@ -108,6 +108,18 @@ public class RecommendationService {
         }
     }
 
+    private Integer getInt(Cell cell) {
+        if (cell == null)
+            return 0;
+        try {
+            if (cell.getCellType() == CellType.NUMERIC)
+                return (int) cell.getNumericCellValue();
+            return Integer.parseInt(cell.getStringCellValue());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     // ================= MAIN METHOD =================
 
     public Recommendation processFilesAndRecommend(
@@ -136,7 +148,7 @@ public class RecommendationService {
                 continue;
 
             Map<String, Object> offer = new HashMap<>();
-            offer.put("Offer_ID", getDouble(row.getCell(0)));
+            offer.put("Offer_Code", getDouble(row.getCell(0)));
             offer.put("Offer_name", getString(row.getCell(1)));
             offer.put("price", getDouble(row.getCell(2)));
             offer.put("data general", getDouble(row.getCell(3)));
@@ -147,7 +159,7 @@ public class RecommendationService {
             offer.put("credit_onnet", getDouble(row.getCell(8)));
 
             offersList.add(offer);
-            offersById.put(((Number) offer.get("Offer_ID")).intValue(), offer);
+            offersById.put(((Number) offer.get("Offer_Code")).intValue(), offer);
         }
 
         offersWorkbook.close();
@@ -185,7 +197,7 @@ public class RecommendationService {
             client.setClientPastOfferReference(getDouble(row.getCell(3)));
             client.setClientPastOfferName(getString(row.getCell(4)));
             client.setClientPastOfferPrice(getDouble(row.getCell(5)));
-            client.setFlagActivity(getString(row.getCell(6)));
+            client.setFlagActivity(getInt(row.getCell(6)));
             client.setValueSegment(getString(row.getCell(7)));
             client.setPasivityO(getDouble(row.getCell(8)));
             client.setAvgRealRev(getDouble(row.getCell(9)));
@@ -275,15 +287,8 @@ public class RecommendationService {
             client.setRevM5(getDouble(row.getCell(78)));
             client.setRevM6(getDouble(row.getCell(79)));
 
-            client.setTop1Usage(getDouble(row.getCell(80)));
-            client.setTop2Usage(getDouble(row.getCell(81)));
-            client.setTop3Usage(getDouble(row.getCell(82)));
-
-            client.setTop1Revenue(getDouble(row.getCell(83)));
-            client.setTop2Revenue(getDouble(row.getCell(84)));
-            client.setTop3Revenue(getDouble(row.getCell(85)));
-
-            client.setTenure(getDouble(row.getCell(86)));
+            client.setTenure(getDouble(row.getCell(80)));
+            client.setTenure_segment(getString(row.getCell(81)));
 
             // -------------------------------------------------------
             // 2. Construire la Map pour l'appel au modèle IA
@@ -296,7 +301,7 @@ public class RecommendationService {
             clientMap.put("Client_past_offer_reference", client.getClientPastOfferReference());
             clientMap.put("Client_past_offer_name", client.getClientPastOfferName());
             clientMap.put("Client_past_offer_price", client.getClientPastOfferPrice());
-            clientMap.put("Flag_Activity", client.getFlagActivity());
+            clientMap.put("is_active", client.getFlagActivity());
             clientMap.put("Value_Segment", client.getValueSegment());
             clientMap.put("Pasivity_O", client.getPasivityO());
             clientMap.put("AVG_REAL_REV", client.getAvgRealRev());
@@ -370,13 +375,8 @@ public class RecommendationService {
             clientMap.put("REV_M4", client.getRevM4());
             clientMap.put("REV_M5", client.getRevM5());
             clientMap.put("REV_M6", client.getRevM6());
-            clientMap.put("top1_usage", client.getTop1Usage());
-            clientMap.put("top2_usage", client.getTop2Usage());
-            clientMap.put("top3_usage", client.getTop3Usage());
-            clientMap.put("top1_revenue", client.getTop1Revenue());
-            clientMap.put("top2_revenue", client.getTop2Revenue());
-            clientMap.put("top3_revenue", client.getTop3Revenue());
             clientMap.put("Tenure", client.getTenure());
+            clientMap.put("Tenure_segment", client.getTenure_segment());
 
             // -------------------------------------------------------
             // 3. Appel au modèle IA
@@ -405,7 +405,7 @@ public class RecommendationService {
             for (int j = 0; j < Math.min(topN, recommendations.size()); j++) {
 
                 Map<String, Object> rec = recommendations.get(j);
-                int offerId = ((Number) rec.get("Offer_ID")).intValue();
+                int offerId = ((Number) rec.get("Offer_Code")).intValue();
 
                 // Récupérer les données complètes depuis le dictionnaire
                 Map<String, Object> fullOffer = offersById.get(offerId);

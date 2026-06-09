@@ -14,6 +14,7 @@ import Analytics from './components/recommendations/Analytics';
 import Loading from './components/common/Loading';
 import Segmentation from './components/recommendations/Segmentation';
 import Login from './components/login/Login'
+import ProtectedRoute from './components/login/ProtectedRoute';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -22,16 +23,56 @@ function App() {
     <AppProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
           <Route element={<Layout />}>
-            <Route path="/" element={<Welcome />} />
-            <Route path="/clients" element={<ClientsView />} />
-            <Route path="/offres" element={<OffersView />} />
-            <Route path="/recommendation" element={<Recommendation />} />
-            <Route path="/recommendation-result/:id" element={<RecommendationResult />} />
-            <Route path="/recommendation-analytics/:id" element={<Analytics />} />
-            <Route path="/recommendation-segmentation/:id" element={<Segmentation />} />
-            <Route path="/history" element={<HistoryView />} />
+            <Route path="/welcome" element={
+              <ProtectedRoute>
+                <Welcome />
+              </ProtectedRoute>
+            }/>
+
+            <Route path="/clients" element={
+              <ProtectedRoute>
+                <ClientsView />
+              </ProtectedRoute>
+            }/>
+
+            <Route path="/offres" element={
+              <ProtectedRoute>
+                <OffersView />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/recommendation" element={
+              <ProtectedRoute>
+                <Recommendation />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/recommendation-result/:id" element={
+              <ProtectedRoute>
+                <RecommendationResult />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/recommendation-analytics/:id" element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/recommendation-segmentation/:id" element={
+              <ProtectedRoute>
+                <Segmentation />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/history" element={
+              <ProtectedRoute>
+                <HistoryView />
+              </ProtectedRoute>
+            } />
+
           </Route>
         </Routes>
       </BrowserRouter>

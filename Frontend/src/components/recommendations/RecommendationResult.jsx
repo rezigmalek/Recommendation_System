@@ -127,7 +127,7 @@ function mapApiItemToDisplay(item) {
     clientPastOfferName: c.clientPastOfferName || '—',
     clientPastOfferPrice: c.clientPastOfferPrice ?? 0,
     contact: c.contact || '—',
-    flagActivity: c.flagActivity || '—',
+    flagActivity: c.flagActivity === 1 ? 'Active' : c.flagActivity === 0 ? 'Inactive' : '—',
     passivity: c.passivity ?? c.passivityO ?? 0,
     tenure: c.tenure || 0,
     avgRealRev: c.avgRealRev ?? 0,

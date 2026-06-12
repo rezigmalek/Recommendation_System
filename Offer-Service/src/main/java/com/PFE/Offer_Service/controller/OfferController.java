@@ -1,13 +1,18 @@
 package com.PFE.Offer_Service.controller;
 
-import com.PFE.Offer_Service.entity.Offer;
-import com.PFE.Offer_Service.service.OfferService;
-import com.PFE.Offer_Service.response.ApiResponse;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import com.PFE.Offer_Service.entity.Offer;
+import com.PFE.Offer_Service.response.ApiResponse;
+import com.PFE.Offer_Service.service.OfferService;
 
 @RestController
 @RequestMapping("/api/offers")
@@ -22,7 +27,7 @@ public class OfferController {
     // ===================== UPLOAD EXCEL =====================
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse<List<Offer>>> uploadOffersExcel(
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("offresFile") MultipartFile file) {
 
         List<Offer> result = offerService.importOffersFromExcel(file);
 

@@ -1,15 +1,18 @@
 package com.PFE.Offer_Service.service;
 
-import com.PFE.Offer_Service.entity.Offer;
-import com.PFE.Offer_Service.repository.OfferRepository;
-import org.apache.poi.ss.usermodel.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.PFE.Offer_Service.entity.Offer;
+import com.PFE.Offer_Service.repository.OfferRepository;
 
 @Service
 public class OfferService {
@@ -41,21 +44,23 @@ public class OfferService {
                 // ===== READ DATA =====
                 offer.setOfferReference((int) row.getCell(0).getNumericCellValue());
 
-                offer.setPrice(row.getCell(1).getNumericCellValue());
+                offer.setOfferName(row.getCell(1).getStringCellValue());
 
-                offer.setDataGeneral(row.getCell(2).getNumericCellValue());
+                offer.setPrice(row.getCell(2).getNumericCellValue());
+
+                offer.setDataGeneral(row.getCell(3).getNumericCellValue());
 
                 offer.setOnnetVoiceUnlimited(
-                        (Double) row.getCell(3).getNumericCellValue());
-
-                offer.setOffnetVoiceUnlimited(
                         (Double) row.getCell(4).getNumericCellValue());
 
-                offer.setCreditInternational(row.getCell(5).getNumericCellValue());
+                offer.setOffnetVoiceUnlimited(
+                        (Double) row.getCell(5).getNumericCellValue());
 
-                offer.setCreditOffnet(row.getCell(6).getNumericCellValue());
+                offer.setCreditInternational(row.getCell(6).getNumericCellValue());
 
-                offer.setCreditOnnet(row.getCell(7).getNumericCellValue());
+                offer.setCreditOffnet(row.getCell(7).getNumericCellValue());
+
+                offer.setCreditOnnet(row.getCell(8).getNumericCellValue());
 
                 // ===== UPSERT LOGIC =====
                 Optional<Offer> existing = offerRepository.findByOfferReference(offer.getOfferReference());

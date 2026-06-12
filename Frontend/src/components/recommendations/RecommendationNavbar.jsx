@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
+import { ClipboardList, BarChart2, PieChart } from 'lucide-react';
 
 // ─── Labels ──────────────────────────────────────────────────────────────────
 const navLabels = {
@@ -27,29 +28,28 @@ export default function RecommendationNavbar() {
   const { lang } = useAppContext();
   const location  = useLocation();
   const navigate  = useNavigate();
-  const { id }    = useParams(); // ← extrait le :id depuis l'URL courante
+  const { id }    = useParams();
   const t = (key) => navLabels[lang]?.[key] || key;
 
-  // ─── Tabs construits dynamiquement avec le vrai id ──────────────────────
   const TABS = [
     {
       key:      'results',
       path:     `/recommendation-result/${id}`,
-      icon:     '✅',
+      icon:     <ClipboardList size={20} strokeWidth={1.8} />,
       labelKey: 'results',
       descKey:  'resultsDesc',
     },
     {
       key:      'analytics',
       path:     `/recommendation-analytics/${id}`,
-      icon:     '📊',
+      icon:     <BarChart2 size={20} strokeWidth={1.8} />,
       labelKey: 'analytics',
       descKey:  'analyticsDesc',
     },
     {
       key:      'segmentation',
       path:     `/recommendation-segmentation/${id}`,
-      icon:     '🎯',
+      icon:     <PieChart size={20} strokeWidth={1.8} />,
       labelKey: 'segmentation',
       descKey:  'segmentDesc',
     },
@@ -65,9 +65,7 @@ export default function RecommendationNavbar() {
           margin-right: calc(-1 * var(--content-padding, 24px));
           margin-top:   calc(-1 * var(--content-padding, 24px));
           margin-bottom: 28px;
-
           padding: 0 var(--content-padding, 24px);
-
           background: var(--bg-900, #0f1117);
           border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
           position: relative;
@@ -127,15 +125,16 @@ export default function RecommendationNavbar() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 18px;
           flex-shrink: 0;
           background: var(--bg-700, rgba(255,255,255,0.06));
-          transition: background 0.18s ease, transform 0.18s ease;
+          color: var(--text-muted, #555d6b);
+          transition: background 0.18s ease, transform 0.18s ease, color 0.18s ease;
         }
 
         .rec-nav-tab:hover .rec-nav-icon,
         .rec-nav-tab-active .rec-nav-icon {
           background: rgba(227, 6, 19, 0.14);
+          color: var(--brand-red, #e30613);
           transform: scale(1.08);
         }
 
@@ -217,7 +216,6 @@ export default function RecommendationNavbar() {
           .rec-nav-icon {
             width: 30px;
             height: 30px;
-            font-size: 14px;
           }
 
           .rec-nav-strip {

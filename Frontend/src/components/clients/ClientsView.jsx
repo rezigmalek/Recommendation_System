@@ -109,7 +109,7 @@ export default function ClientsView() {
       client.valueSegment === segmentFilter;
 
     const matchesActivity = activityFilter === 'All' ||
-      client.flag_activity === activityFilter;
+      client.flag_activity === Number(activityFilter);
 
     return matchesSearch && matchesSegment && matchesActivity;
   });

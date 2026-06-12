@@ -3,6 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import RecommendationNavbar from './RecommendationNavbar';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
+import {
+  Users, Star, TrendingUp, Database,
+  Phone, DollarSign, AlertTriangle, PackageOpen,
+  RefreshCw, FileDown
+} from 'lucide-react';
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -251,7 +256,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
 
   let curY = 63;
 
-  // SECTION 1
   setFont('bold', 12);
   setColor(PDF_COLORS.teal);
   pdf.text(isFr ? '1.  Résumé Exécutif' : '1.  Executive Summary', MARGIN, curY);
@@ -267,7 +271,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   kpiBox(MARGIN + (boxW + 4)*2, curY, boxW, boxH, isFr ? 'TAUX DE CONVERSION ESTIMÉ' : 'ESTIMATED CONVERSION RATE', `${data.conversion_moyenne.toFixed(1)}%`, `Score moy: ${(data.conversion_delta * 100).toFixed(1)}%`, PDF_COLORS.green);
   curY += boxH + 10;
 
-  // SECTION 2
   setFont('bold', 12);
   setColor(PDF_COLORS.teal);
   pdf.text(isFr ? '2.  Analyse des Mouvements' : '2.  Movement Analysis', MARGIN, curY);
@@ -286,34 +289,23 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   );
   curY += 7;
 
-  // ── Stacked bar PDF — FIX : ne dessiner que si > 0 ──
   const barH = 9;
   const barW = CONTENT_W;
   const upW  = barW * (data.upsell_pourcentage / 100);
   const stW  = barW * (data.stable_pourcentage / 100);
   const dnW  = barW * (data.downsell_pourcentage / 100);
 
-  if (upW > 0) {
-    setFill(PDF_COLORS.green);
-    pdf.roundedRect(MARGIN, curY, upW, barH, 1.5, 1.5, 'F');
-  }
-  if (stW > 0) {
-    setFill([148, 163, 184]);
-    pdf.rect(MARGIN + upW, curY, stW, barH, 'F');
-  }
-  if (dnW > 0) {
-    setFill(PDF_COLORS.darkRed);
-    pdf.roundedRect(MARGIN + upW + stW, curY, dnW, barH, 1.5, 1.5, 'F');
-  }
+  if (upW > 0) { setFill(PDF_COLORS.green);    pdf.roundedRect(MARGIN, curY, upW, barH, 1.5, 1.5, 'F'); }
+  if (stW > 0) { setFill([148, 163, 184]);      pdf.rect(MARGIN + upW, curY, stW, barH, 'F'); }
+  if (dnW > 0) { setFill(PDF_COLORS.darkRed);   pdf.roundedRect(MARGIN + upW + stW, curY, dnW, barH, 1.5, 1.5, 'F'); }
 
   setFont('bold', 7);
   setColor(PDF_COLORS.white);
-  if (upW > 12) pdf.text(`${data.upsell_pourcentage.toFixed(1)}%`,   MARGIN + upW / 2,               curY + 5.8, { align: 'center' });
-  if (stW > 12) pdf.text(`${data.stable_pourcentage.toFixed(1)}%`,   MARGIN + upW + stW / 2,         curY + 5.8, { align: 'center' });
-  if (dnW > 12) pdf.text(`${data.downsell_pourcentage.toFixed(1)}%`, MARGIN + upW + stW + dnW / 2,   curY + 5.8, { align: 'center' });
+  if (upW > 12) pdf.text(`${data.upsell_pourcentage.toFixed(1)}%`,   MARGIN + upW / 2,             curY + 5.8, { align: 'center' });
+  if (stW > 12) pdf.text(`${data.stable_pourcentage.toFixed(1)}%`,   MARGIN + upW + stW / 2,       curY + 5.8, { align: 'center' });
+  if (dnW > 12) pdf.text(`${data.downsell_pourcentage.toFixed(1)}%`, MARGIN + upW + stW + dnW / 2, curY + 5.8, { align: 'center' });
   curY += barH + 4;
 
-  // ── Legend PDF — FIX : ne montrer que si > 0 ──
   const legendItems = [
     { color: PDF_COLORS.green,   label: 'Upsell',   pct: data.upsell_pourcentage },
     { color: [148, 163, 184],    label: 'Stable',   pct: data.stable_pourcentage },
@@ -334,10 +326,9 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   });
   curY += 9;
 
-  // ── Movement table PDF — FIX : ne montrer que les lignes > 0 ──
   const movementRows = [
     [
-      { content: 'UPSELL',   styles: { textColor: [22, 163, 74],  fontStyle: 'bold' } },
+      { content: 'UPSELL',   styles: { textColor: [22, 163, 74],   fontStyle: 'bold' } },
       `${data.upsell_pourcentage.toFixed(2)}%`,
       Math.round(data.total_clients * data.upsell_pourcentage / 100).toLocaleString('fr-FR'),
       isFr ? 'Augmentation de la valeur contractuelle' : 'Increase in contractual value',
@@ -349,7 +340,7 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
       isFr ? "Maintien de l'offre actuelle" : 'Maintaining current offer',
     ],
     [
-      { content: 'DOWNSELL', styles: { textColor: [220, 38, 38],  fontStyle: 'bold' } },
+      { content: 'DOWNSELL', styles: { textColor: [220, 38, 38],   fontStyle: 'bold' } },
       `${data.downsell_pourcentage.toFixed(2)}%`,
       Math.round(data.total_clients * data.downsell_pourcentage / 100).toLocaleString('fr-FR'),
       isFr ? 'Migration vers une offre inférieure' : 'Migration to a lower tier offer',
@@ -361,7 +352,7 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
 
   movementRows.push([
     { content: isFr ? 'TOTAL' : 'TOTAL', styles: { fontStyle: 'bold' } },
-    { content: '100.00%', styles: { fontStyle: 'bold' } },
+    { content: '100.00%',                styles: { fontStyle: 'bold' } },
     { content: data.total_clients.toLocaleString('fr-FR'), styles: { fontStyle: 'bold' } },
     '',
   ]);
@@ -371,9 +362,9 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
     margin: { left: MARGIN, right: MARGIN },
     head: [[
       isFr ? 'Type de Mouvement' : 'Movement Type',
-      isFr ? 'Pourcentage' : 'Percentage',
-      isFr ? 'Clients Estimés' : 'Estimated Clients',
-      isFr ? 'Description' : 'Description',
+      isFr ? 'Pourcentage'       : 'Percentage',
+      isFr ? 'Clients Estimés'   : 'Estimated Clients',
+      isFr ? 'Description'       : 'Description',
     ]],
     body: movementRows,
     styles: { fontSize: 8.5, cellPadding: 3, lineColor: PDF_COLORS.lightGray, lineWidth: 0.2 },
@@ -383,7 +374,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   });
   curY = pdf.lastAutoTable.finalY + 10;
 
-  // SECTION 3
   if (curY > H - 90) { addFooter(1, 2); pdf.addPage(); curY = 20; }
 
   setFont('bold', 12);
@@ -409,7 +399,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   });
   curY = pdf.lastAutoTable.finalY + 10;
 
-  // SECTION 4
   if (curY > H - 60) { addFooter(1, 2); pdf.addPage(); curY = 20; }
 
   setFont('bold', 12);
@@ -448,7 +437,6 @@ async function generateProfessionalPDF(data, lang, logoSvgUrl) {
   });
   curY = pdf.lastAutoTable.finalY + 12;
 
-  // Closing note
   if (curY > H - 36) { addFooter(1, 2); pdf.addPage(); curY = 20; }
 
   setFill(PDF_COLORS.veryLight);
@@ -553,50 +541,44 @@ export default function Analytics({ analyticsData, batchRef }) {
     if (error) {
       return (
         <div className="an-state-box error">
-          <span className="an-state-icon">⚠️</span>
+          <span className="an-state-icon">
+            <AlertTriangle size={36} strokeWidth={1.5} color="var(--color-danger, #e53935)" />
+          </span>
           <p className="an-state-msg">{t('error')}</p>
           <p className="an-state-detail">{error}</p>
-          <button className="an-retry-btn" onClick={fetchAnalytics}>↺ Réessayer</button>
+          <button className="an-retry-btn" onClick={fetchAnalytics}>
+            <RefreshCw size={13} strokeWidth={2} />
+            Réessayer
+          </button>
         </div>
       );
     }
     if (!data) {
       return (
         <div className="an-state-box">
-          <span className="an-state-icon">📭</span>
+          <span className="an-state-icon">
+            <PackageOpen size={36} strokeWidth={1.5} color="var(--text-muted)" />
+          </span>
           <p className="an-state-msg">{t('noData')}</p>
         </div>
       );
     }
 
-    // ── FIX : construire uniquement les pills dont la valeur est > 0 ──
     const movementPills = [
       {
-        key: 'up',
-        show: data.upsell_pourcentage > 0,
-        dotClass: 'green',
-        pct: data.upsell_pourcentage,
-        label: t('upsell'),
-        desc: t('upsellDesc'),
-        pillClass: 'up',
+        key: 'up', show: data.upsell_pourcentage > 0,
+        dotClass: 'green', pct: data.upsell_pourcentage,
+        label: t('upsell'), desc: t('upsellDesc'), pillClass: 'up',
       },
       {
-        key: 'st',
-        show: data.stable_pourcentage > 0,
-        dotClass: 'gray',
-        pct: data.stable_pourcentage,
-        label: t('stable'),
-        desc: t('stableDesc'),
-        pillClass: 'st',
+        key: 'st', show: data.stable_pourcentage > 0,
+        dotClass: 'gray', pct: data.stable_pourcentage,
+        label: t('stable'), desc: t('stableDesc'), pillClass: 'st',
       },
       {
-        key: 'dn',
-        show: data.downsell_pourcentage > 0,
-        dotClass: 'red',
-        pct: data.downsell_pourcentage,
-        label: t('downsell'),
-        desc: t('downsellDesc'),
-        pillClass: 'dn',
+        key: 'dn', show: data.downsell_pourcentage > 0,
+        dotClass: 'red', pct: data.downsell_pourcentage,
+        label: t('downsell'), desc: t('downsellDesc'), pillClass: 'dn',
       },
     ].filter(p => p.show);
 
@@ -605,18 +587,30 @@ export default function Analytics({ analyticsData, batchRef }) {
         {/* KPIs */}
         <div className="an-kpi-row">
           <div className="an-kpi-card">
-            <div className="an-kpi-top"><div className="an-kpi-icon blue">👥</div></div>
+            <div className="an-kpi-top">
+              <div className="an-kpi-icon blue">
+                <Users size={18} strokeWidth={1.8} />
+              </div>
+            </div>
             <div className="an-kpi-value">{data.total_clients.toLocaleString('fr-FR')}</div>
             <div className="an-kpi-label">{t('totalClients')}</div>
           </div>
+
           <div className="an-kpi-card">
-            <div className="an-kpi-top"><div className="an-kpi-icon red">⭐</div></div>
+            <div className="an-kpi-top">
+              <div className="an-kpi-icon red">
+                <Star size={18} strokeWidth={1.8} />
+              </div>
+            </div>
             <div className="an-kpi-value offer-name">{data.top_offer_recommended_name}</div>
             <div className="an-kpi-label">{t('topOffer')}</div>
           </div>
+
           <div className="an-kpi-card">
             <div className="an-kpi-top">
-              <div className="an-kpi-icon green">📈</div>
+              <div className="an-kpi-icon green">
+                <TrendingUp size={18} strokeWidth={1.8} />
+              </div>
               <span className="an-badge green">{(data.conversion_delta * 100).toFixed(1)}%</span>
             </div>
             <div className="an-kpi-value">{data.conversion_moyenne.toFixed(1)}%</div>
@@ -635,14 +629,12 @@ export default function Analytics({ analyticsData, batchRef }) {
               <p className="an-movement-sub">{t('clientProgression')}</p>
             </div>
 
-            {/* ── Stacked bar React — FIX : ne render que si > 0 ── */}
             <div className="an-seg-bar">
               {data.upsell_pourcentage   > 0 && <div className="an-seg-up" style={{ width: `${data.upsell_pourcentage}%`   }}>{t('upsell')}</div>}
               {data.stable_pourcentage   > 0 && <div className="an-seg-st" style={{ width: `${data.stable_pourcentage}%`   }}>{t('stable')}</div>}
               {data.downsell_pourcentage > 0 && <div className="an-seg-dn" style={{ width: `${data.downsell_pourcentage}%` }}>{t('downsell')}</div>}
             </div>
 
-            {/* ── Pills React — FIX : ne render que si > 0 ── */}
             <div className="an-pills-grid">
               {movementPills.map(p => (
                 <div key={p.key} className={`an-pill ${p.pillClass}`}>
@@ -659,8 +651,11 @@ export default function Analytics({ analyticsData, batchRef }) {
 
           <div className="an-usage-card">
             <div className="an-usage-head">{t('usageTitle')}</div>
+
             <div className="an-usage-row">
-              <div className="an-usage-icon data">🗄️</div>
+              <div className="an-usage-icon data">
+                <Database size={16} strokeWidth={1.8} />
+              </div>
               <div className="an-usage-info">
                 <span className="an-usage-name">{t('avgData')}</span>
                 <span className="an-usage-sub">{t('mobileData')}</span>
@@ -673,8 +668,11 @@ export default function Analytics({ analyticsData, batchRef }) {
                 }
               </div>
             </div>
+
             <div className="an-usage-row">
-              <div className="an-usage-icon voice">📞</div>
+              <div className="an-usage-icon voice">
+                <Phone size={16} strokeWidth={1.8} />
+              </div>
               <div className="an-usage-info">
                 <span className="an-usage-name">{t('avgVoice')}</span>
                 <span className="an-usage-sub">{t('voiceSms')}</span>
@@ -684,8 +682,11 @@ export default function Analytics({ analyticsData, batchRef }) {
                 <span className="an-delta neutral">Stable</span>
               </div>
             </div>
+
             <div className="an-usage-row">
-              <div className="an-usage-icon arpu">💰</div>
+              <div className="an-usage-icon arpu">
+                <DollarSign size={16} strokeWidth={1.8} />
+              </div>
               <div className="an-usage-info">
                 <span className="an-usage-name">{t('arpu')}</span>
                 <span className="an-usage-sub">{t('revenueImpact')}</span>
@@ -706,7 +707,9 @@ export default function Analytics({ analyticsData, batchRef }) {
       justify-content: center; gap: 10px; min-height: 260px; padding: 40px 20px;
     }
     .an-state-box.error { color: var(--color-danger, #e53935); }
-    .an-state-icon { font-size: 36px; }
+    .an-state-icon {
+      display: flex; align-items: center; justify-content: center;
+    }
     .an-state-msg  { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; }
     .an-state-detail { font-size: 12px; color: var(--text-secondary); margin: 0; }
     .an-retry-btn {
@@ -714,6 +717,7 @@ export default function Analytics({ analyticsData, batchRef }) {
       border: 1.5px solid var(--color-danger, #e53935); background: transparent;
       color: var(--color-danger, #e53935); font-size: 13px; font-weight: 600;
       cursor: pointer; transition: background .18s, color .18s;
+      display: inline-flex; align-items: center; gap: 6px;
     }
     .an-retry-btn:hover { background: var(--color-danger,#e53935); color:#fff; }
     .an-spinner {
@@ -728,6 +732,10 @@ export default function Analytics({ analyticsData, batchRef }) {
       gap: 12px; margin-bottom: 8px; flex-wrap: wrap;
     }
     .an-title-left { display: flex; align-items: center; gap: 12px; }
+    .an-kpi-icon,
+    .an-usage-icon {
+      display: flex; align-items: center; justify-content: center;
+    }
     .an-pdf-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 9px 20px; border-radius: 10px; border: none;
@@ -779,13 +787,7 @@ export default function Analytics({ analyticsData, batchRef }) {
               </>
             ) : (
               <>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="12" y1="18" x2="12" y2="12"/>
-                  <line x1="9" y1="15" x2="15" y2="15"/>
-                </svg>
+                <FileDown size={16} strokeWidth={2} />
                 {t('exportPdf')}
                 <span className="an-pdf-btn-badge">PDF</span>
               </>

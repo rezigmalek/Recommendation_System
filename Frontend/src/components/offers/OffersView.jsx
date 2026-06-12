@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SearchIcon } from '../common/Icons';
 import { useAppContext } from '../../context/AppContext';
+import { AlertTriangle, RefreshCw, Globe, Phone, Check } from 'lucide-react';
 
 export default function OffersView() {
   const {
@@ -213,11 +214,15 @@ export default function OffersView() {
 
               <div className="offer-allowances">
                 <div className="allowance-item">
-                  <div className="allowance-icon">🌐</div>
+                  <div className="allowance-icon">
+                    <Globe size={15} strokeWidth={1.8} />
+                  </div>
                   <span>{t('allowanceInternet')}{offer.data.replace('Go', 'GB')}</span>
                 </div>
                 <div className="allowance-item">
-                  <div className="allowance-icon">📞</div>
+                  <div className="allowance-icon">
+                    <Phone size={15} strokeWidth={1.8}/>
+                  </div>
                   <span>
                     {t('allowanceVoice')}
                     {lang === 'fr' ? offer.voice : offer.voice.replace('Illimité vers Djezzy', 'Unlimited to Djezzy').replace('Sans appels inclus', 'No calls included').replace('vers Djezzy', 'to Djezzy')}
@@ -225,7 +230,9 @@ export default function OffersView() {
                 </div>
                 {offer.voiceOther !== "Tarif standard" && (
                   <div className="allowance-item">
-                    <div className="allowance-icon">📞</div>
+                    <div className="allowance-icon">
+                      <Phone size={15} strokeWidth={1.8}/>
+                    </div>
                     <span style={{ fontSize: '13px' }}>
                       {t('allowanceOthers')}
                       {lang === 'fr' ? offer.voiceOther : offer.voiceOther.replace('vers autres réseaux', 'to other networks')}

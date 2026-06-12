@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAppContext } from '../../context/AppContext';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
 import { useNavigate } from 'react-router-dom';
+import { Users, Wifi, Calendar, Hash, LogOut } from 'lucide-react';
 
 export default function Sidebar() {
   const {
@@ -18,9 +19,7 @@ export default function Sidebar() {
 
   const formatDate = (dateTime) => {
     if (!dateTime) return '';
-
     const date = new Date(dateTime);
-
     return date.toLocaleString('fr-FR', {
       year: 'numeric',
       month: '2-digit',
@@ -34,19 +33,13 @@ export default function Sidebar() {
     try {
       setLoading(true);
       setError(null);
-
       const response = await fetch('/api/history');
-
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
       const result = await response.json();
-
       if (result.success && result.data) {
         setHistoryList(result.data);
       } else {
-        throw new Error(result.message || 'Erreur lors du chargement de l’historique');
+        throw new Error(result.message || 'Erreur lors du chargement');
       }
     } catch (err) {
       setError(err.message);
@@ -58,6 +51,11 @@ export default function Sidebar() {
   useEffect(() => {
     fetchHistory();
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    navigate('/');
+  };
 
   return (
     <aside className="sidebar">
@@ -103,7 +101,6 @@ export default function Sidebar() {
           {t('tabHistory')}
         </NavLink>
 
-        {/* Récents recommendations section */}
         <span className="menu-label">{t('menuLabelRecents')}</span>
         <div className="recent-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {historyList.slice(0, 3).map((item) => {
@@ -127,9 +124,7 @@ export default function Sidebar() {
                   transition: 'all 0.2s ease',
                   cursor: 'pointer'
                 }}
-                onClick={() => {
-                  navigate(`/recommendation-result/${refCode}`);
-                }}
+                onClick={() => navigate(`/recommendation-result/${refCode}`)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'var(--brand-red)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -139,6 +134,7 @@ export default function Sidebar() {
                   e.currentTarget.style.transform = 'none';
                 }}
               >
+                {/* Ref + Date row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{
                     fontSize: '11px',
@@ -147,28 +143,36 @@ export default function Sidebar() {
                     backgroundColor: 'var(--brand-red-glow)',
                     padding: '2px 8px',
                     borderRadius: '4px',
-                    letterSpacing: '0.5px'
+                    letterSpacing: '0.5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}>
-                    Ref: #{refCode}
+                    <Hash size={11} strokeWidth={2.5} />
+                    {refCode}
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    📅 {itemDate}
+                  <span style={{
+                    fontSize: '11px',
+                    color: 'var(--text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Calendar size={11} strokeWidth={2} />
+                    {itemDate}
                   </span>
                 </div>
 
+                {/* Clients + Offres row */}
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ filter: 'grayscale(100%)' }}>👥</span>
-                    <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>
-                      {clientsCount}
-                    </span>
+                    <Users size={13} strokeWidth={2} color="var(--text-muted)" />
+                    <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{clientsCount}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Clients</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ filter: 'grayscale(100%)' }}>📶</span>
-                    <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>
-                      {offersCount}
-                    </span>
+                    <Wifi size={13} strokeWidth={2} color="var(--text-muted)" />
+                    <span style={{ fontWeight: '700', color: 'var(--text-primary)' }}>{offersCount}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Offres</span>
                   </div>
                 </div>
@@ -187,6 +191,36 @@ export default function Sidebar() {
           <span className="user-name">Mustapha K.</span>
           <span className="user-role">{t('userRole')}</span>
         </div>
+        <button
+          onClick={handleLogout}
+          title="Logout"
+          style={{
+            marginLeft: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-muted)',
+            fontSize: '12px',
+            fontWeight: '600',
+            padding: '6px 8px',
+            borderRadius: '6px',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--brand-red)';
+            e.currentTarget.style.backgroundColor = 'var(--brand-red-glow)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-muted)';
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          <LogOut size={16} strokeWidth={1.8} />
+          Logout
+        </button>
       </div>
     </aside>
   );

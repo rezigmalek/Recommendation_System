@@ -19,8 +19,8 @@ export default function Login() {
       password: "123456",
     },
     {
-      username: "test",
-      password: "password",
+      username: "mustapha",
+      password: "admin123",
     },
   ];
 

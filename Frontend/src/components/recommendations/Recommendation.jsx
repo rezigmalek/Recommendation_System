@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import logo from '../../assets/Djezzy_Logo_2015.svg';
 import Loading from '../common/Loading';
+import { FileSpreadsheet, Package, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 // ─── useForm hook ──────────────────────────────────────────────
 function useForm(initialValues, validate) {
@@ -67,7 +68,7 @@ function FileUploadInput({ label, icon, name, value, error, touched, onChange, o
           onChange={(e) => { onChange(e.target.files[0] || null); }}
           onBlur={onBlur}
         />
-        <div style={styles.uploadIcon(hasFile)}>{hasFile ? '✅' : icon}</div>
+        <div style={styles.uploadIcon(hasFile)}>{hasFile ? <CheckCircle2 /> : icon}</div>
         <div>
           <strong style={{ display: 'block', fontSize: 13, fontWeight: 600, color: hasFile ? 'var(--success)' : 'var(--text-primary)' }}>
             {hasFile ? value.name : (lang === 'fr' ? 'Cliquer pour importer' : 'Click to import')}
@@ -166,6 +167,28 @@ export default function Recommendation({ onSubmit }) {
     }
   };
 
+  const createOffers = async (offersFile) => {
+    try {
+      const formData = new FormData();
+      formData.append('offresFile', offersFile);
+
+      const res = await fetch('/api/offers/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        console.log('Offers Created succesfuly', data.data);
+      } else {
+        console.warn('Offers failed:', data.message);
+      }
+    } catch (err) {
+      console.error('Error creating Offers:', err);
+    }
+  };
+
   const fetchLastIndex = async () => {
     try {
       const response = await fetch(`/api/recommendations/last-reference`);
@@ -205,6 +228,7 @@ export default function Recommendation({ onSubmit }) {
 
         // ── Créer l'historique en parallèle, sans bloquer la navigation ──
         createUsageHistory(vals.clientFile, vals.offresFile, NextIndex);
+        createOffers(vals.offresFile)
 
         navigate(`/recommendation-result/${NextIndex}`);
       } else {
@@ -243,7 +267,7 @@ export default function Recommendation({ onSubmit }) {
         {/* Fichier Clients */}
         <FileUploadInput
           label={lang === 'fr' ? 'Fichier Clients' : 'Clients File'}
-          icon="📋"
+          icon={<FileSpreadsheet />}
           name="clientFile"
           value={values.clientFile}
           error={getTransError(errors.clientFile)}
@@ -255,7 +279,7 @@ export default function Recommendation({ onSubmit }) {
         {/* Fichier Offres */}
         <FileUploadInput
           label={lang === 'fr' ? 'Fichier Offres' : 'Offers File'}
-          icon="📦"
+          icon={<Package />}
           name="offresFile"
           value={values.offresFile}
           error={getTransError(errors.offresFile)}
